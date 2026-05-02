@@ -17,6 +17,10 @@
     rr:predicateObjectMap [
         rr:predicate ont:categoryName;        
         rr:objectMap [ rr:column "category_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "category_name" ]
     ] .
 
 <#MapRole> a rr:TriplesMap;
@@ -27,6 +31,10 @@
     ];
     rr:predicateObjectMap [
         rr:predicate ont:roleName;            
+        rr:objectMap [ rr:column "role_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
         rr:objectMap [ rr:column "role_name" ]
     ] .
 
@@ -39,6 +47,10 @@
     rr:predicateObjectMap [
         rr:predicate ont:genreName;       
         rr:objectMap [ rr:column "genre_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "genre_name" ]
     ] .
 
 <#MapTitleType> a rr:TriplesMap;
@@ -49,6 +61,10 @@
     ];
     rr:predicateObjectMap [
         rr:predicate ont:title_type_name;    
+        rr:objectMap [ rr:column "title_type_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
         rr:objectMap [ rr:column "title_type_name" ]
     ] .
 
@@ -61,6 +77,10 @@
     rr:predicateObjectMap [
         rr:predicate ont:content_type_name;   
         rr:objectMap [ rr:column "content_type_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "content_type_name" ]
     ] .
 
 <#MapRegion> a rr:TriplesMap;
@@ -72,6 +92,10 @@
     rr:predicateObjectMap [
         rr:predicate ont:regionName;        
         rr:objectMap [ rr:column "region_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "region_name" ]
     ] .
 
 <#MapLanguage> a rr:TriplesMap;
@@ -80,7 +104,6 @@
         rr:template "https://khalilankri.github.io/audiovisual-ontology/data/language/{language_id}";
         rr:class ont:Language
     ] .
-
 
 # =================================================================
 # 2. CORE ENTITIES
@@ -120,6 +143,10 @@
             rr:parentTriplesMap <#MapParticipation>;
             rr:joinCondition [ rr:child "title_id"; rr:parent "title_id" ]
         ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "primary_title" ]
     ] .
 
 <#MapTalent> a rr:TriplesMap;
@@ -138,6 +165,10 @@
             rr:parentTriplesMap <#MapParticipation>;
             rr:joinCondition [ rr:child "talent_id"; rr:parent "talent_id" ]
         ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "talent_name" ]
     ] .
 
 # =================================================================
@@ -161,8 +192,6 @@
         rr:predicate ont:job;                 
         rr:objectMap [ rr:column "job" ]
     ] .
-
-
 
 <#MapParticipationPlaysRole> a rr:TriplesMap;
     rr:logicalTable [ rr:sqlQuery """
@@ -210,6 +239,10 @@
             rr:parentTriplesMap <#MapRegion>;
             rr:joinCondition [ rr:child "region_id"; rr:parent "region_id" ]
         ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "aka_title" ]
     ] .
 
 <#MapAkaTitleTypeLink> a rr:TriplesMap;

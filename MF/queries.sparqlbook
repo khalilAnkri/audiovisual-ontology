@@ -1,0 +1,62 @@
+[
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 1 :\r\n\r\nThis query builds a **complete profile for each title** in a single row. It simultaneously traverses three separate branches of the ontology from the same `?title` node:\r\n\r\n- The `isClassifiedAs` link to retrieve the content type\r\n- The `contains → participatesIn` chain to count how many talents were involved\r\n- The `hasGenre` link to list all genres associated with the title\r\n\r\n\r\nThe combination of two independent `COUNT(DISTINCT)` aggregations on the same query makes this non-trivial. The use of `OPTIONAL` for genres is also semantically important — it ensures titles with no genre assigned still appear in the results rather than being silently dropped. This query validates the core hub structure of the ontology, where `Title` acts as the central node connecting content type, participation, and genre simultaneously.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?contentTypeName \r\n       (COUNT(DISTINCT ?talent) AS ?talentCount)\r\n       (COUNT(DISTINCT ?genreName) AS ?genreCount)\r\n       (GROUP_CONCAT(DISTINCT ?genreName ; separator=\", \") AS ?genres)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isClassifiedAs ?ct ;\r\n           ont:contains ?participation .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n    ?talent ont:participatesIn ?participation .\r\n    OPTIONAL {\r\n        ?title ont:hasGenre ?genre .\r\n        ?genre ont:genreName ?genreName .\r\n    }\r\n}\r\nGROUP BY ?title ?titleName ?contentTypeName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 5",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 2 :\r\nThis query identifies **multi-role talents** — individuals who held more than two distinct roles across their participations, such as someone who was simultaneously actor, director, and producer on the same title.\r\n\r\n\r\nIt exploits the **reification pattern** at the heart of the ontology. The `Participation` bridge class exists precisely to allow a single talent to hold multiple roles on the same title, and this query is the direct proof that the pattern works correctly. It traverses the `Talent → Participation → Role` chain and applies a `HAVING` filter on the aggregated count to keep only the most versatile individuals, demonstrating that the junction between `talent_role` and `title_principal` was mapped correctly.\r\n",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?talentName\r\n       (COUNT(?roleName) AS ?roleCount)\r\n       (GROUP_CONCAT(?roleName ; separator=\", \") AS ?roles)\r\nWHERE {\r\n    ?talent ont:participatesIn ?participation ;\r\n            ont:talentName ?talentName .\r\n    ?participation ont:plays ?role .\r\n    ?role ont:roleName ?roleName .\r\n}\r\nGROUP BY ?talent ?talentName\r\nHAVING (COUNT(?roleName) > 2)\r\nORDER BY DESC(?roleCount)\r\nLIMIT 10",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 3 :\r\nThis query traverses the full **alternative title chain**: `Title → AlternativeTitle → Region` with an optional extension to `TitleType`. It reveals that the same title can have multiple localised names across different countries and languages — for example \"Episode #1.1\" appears in Japanese, German, Spanish, French, Portuguese, and Italian.\r\n\r\n\r\nIt validates three junction mappings at once: `isAka`, `isFrom`, and `hasType`. The `OPTIONAL` clause for `?titleTypeName` is semantically meaningful — not all alternative titles have a type assigned, and making it required would silently drop valid rows. This query demonstrates the full depth of the `AlternativeTitle` subgraph and confirms that nullable foreign keys (`region_id`, `language_id`) in the original SQL schema were handled correctly during mapping.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?akaName ?regionName ?titleTypeName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isAka ?aka .\r\n    ?aka ont:alternativeTitleName ?akaName ;\r\n         ont:isFrom ?region .\r\n    ?region ont:regionName ?regionName .\r\n    OPTIONAL {\r\n        ?aka ont:hasType ?tt .\r\n        ?tt ont:title_type_name ?titleTypeName .\r\n    }\r\n}\r\nORDER BY ?titleName\r\nLIMIT 10",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 4 :\r\nThis query produces a **cross-tabulation of roles against categories**, counting how many distinct talents appear in each combination.\r\n\r\n\r\nThe interesting result is that roles and categories are not always identical — for example \"producer\" as a role can appear under the \"actor\" category. This reveals that the `role` table (sourced from `talent_role`) and the `category` table (sourced from `title_principal`) capture two **different dimensions** of a talent's contribution. This distinction is a deliberate modelling choice in the ontology: `ont:as` links a participation to its broad industry category, while `ont:plays` links it to the specific credited role. This query is the clearest demonstration of that distinction, traversing both `Participation → Role` and `Participation → Category` simultaneously.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?roleName ?categoryName (COUNT(DISTINCT ?talent) AS ?talentCount)\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:participatesIn ?participation .\r\n    ?participation ont:plays ?role ;\r\n                   ont:as ?category .\r\n    ?role ont:roleName ?roleName .\r\n    ?category ont:categoryName ?categoryName .\r\n}\r\nGROUP BY ?roleName ?categoryName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 10",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 5 :\r\nThis query analyses **which genres appear across which content types**, joining three classes in one traversal: `Genre ← Title → ContentType`. It reveals structural patterns in the data — for example Drama appears across TV Episodes, movies, shorts, and TV Movies, while Crime only appears in TV Episodes in this dataset.\r\n\r\n\r\nThe `GROUP_CONCAT(DISTINCT ?contentTypeName)` is what elevates this beyond a simple count. Instead of producing one row per genre-contentType combination, it collapses the content type dimension into a readable list per genre, giving a richer analytical view in a single result set. It also joins two independent dictionary classes (`Genre` and `ContentType`) through the central `Title` node, confirming that both the `title_genre` and `title` mappings are correctly linked.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?genreName \r\n       (COUNT(DISTINCT ?title) AS ?titleCount)\r\n       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=\", \") AS ?contentTypes)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:hasGenre ?genre ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?genre ont:genreName ?genreName .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n}\r\nGROUP BY ?genre ?genreName\r\nORDER BY DESC(?titleCount)\r\nLiMIT 10",
+    "metadata": {}
+  }
+]

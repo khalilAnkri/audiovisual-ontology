@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SPARQL Demonstrator</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    max-width: 960px;
+    margin: 48px auto;
+    padding: 0 24px;
+    background: #f4f4f4;
+    color: #1a1a1a;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 2px; }
+  p.sub { color: #999; font-size: 0.78rem; margin: 0; letter-spacing: 0.02em; }
+  label {
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: #666; display: block; margin-bottom: 6px;
+  }
+  select, textarea {
+    width: 100%; font-family: inherit;
+    border: 1px solid #d8d8d8; border-radius: 6px;
+    color: #1a1a1a; background: #fff;
+  }
+  select { padding: 8px 10px; font-size: 0.88rem; margin-bottom: 20px; }
+  select:focus { outline: none; border-color: #888; }
+  textarea {
+    height: 180px; font-family: 'Consolas', monospace;
+    font-size: 0.82rem; padding: 10px 12px; resize: vertical; line-height: 1.6;
+  }
+  textarea:focus { outline: none; border-color: #888; }
+  button {
+    margin-top: 12px; padding: 9px 22px;
+    font-family: inherit; font-size: 0.88rem; font-weight: 600;
+    background: #1a1a1a; color: #fff;
+    border: none; border-radius: 6px; cursor: pointer;
+  }
+  button:hover { background: #333; }
+  #results { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.83rem; }
+  thead th {
+    background: #f7f7f7; border-bottom: 2px solid #e0e0e0;
+    padding: 8px 14px; text-align: left;
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; color: #555;
+  }
+  td {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 7px 14px;
+    max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  .row-count { font-size: 0.78rem; color: #999; margin-bottom: 10px; }
+  .msg { color: #999; font-size: 0.85rem; }
+  .err { color: #c0392b; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>AudiovisualOntology — SPARQL Demonstrator</h1>
+  <p class="sub">ANKRI Mohamed-Khalil &nbsp;·&nbsp; MICHON Charlotte &nbsp;·&nbsp; PAULIS Antoine</p>
+</div>
+
+<div class="card">
+  <label>1. Select a query</label>
+  <select id="querySelect" onchange="onSelect()">
+    <option value="">— choose a query —</option>
+    <optgroup label="Simple">
+      <option value="s1">S1 · Titles and start year</option>
+      <option value="s2">S2 · All genres</option>
+      <option value="s3">S3 · All content types</option>
+      <option value="s4">S4 · All roles</option>
+      <option value="s5">S5 · All categories</option>
+      <option value="s6">S6 · All regions</option>
+      <option value="s7">S7 · Titles with content type</option>
+      <option value="s8">S8 · Alternative titles</option>
+    </optgroup>
+    <optgroup label="Non-Trivial">
+      <option value="nt1">NT1 · Title profile summary</option>
+      <option value="nt2">NT2 · Versatile talents</option>
+      <option value="nt3">NT3 · Multilingual AKA titles</option>
+      <option value="nt4">NT4 · Roles × categories breakdown</option>
+      <option value="nt5">NT5 · Genre × content type distribution</option>
+    </optgroup>
+  </select>
+
+  <label>2. Edit or write your SPARQL query</label>
+  <textarea id="editor" placeholder="Write your SPARQL query here..."></textarea>
+
+  <button onclick="run()">▶ Run Query</button>
+</div>
+
+<div class="card">
+  <div id="results"><p class="msg">Results will appear here.</p></div>
+</div>
+
+<script>
+const ONT = 'http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#';
+const Q = {
+  s1:`PREFIX ont: <${ONT}>
+SELECT ?titleName ?startYear
+WHERE { ?t a ont:Title ; ont:primaryTitle ?titleName ; ont:startYear ?startYear . }
+ORDER BY ?startYear LIMIT 30`,
+
+  s2:`PREFIX ont: <${ONT}>
+SELECT ?genreName
+WHERE { ?g a ont:Genre ; ont:genreName ?genreName . }
+ORDER BY ?genreName`,
+
+  s3:`PREFIX ont: <${ONT}>
+SELECT ?contentTypeName
+WHERE { ?ct a ont:ContentType ; ont:content_type_name ?contentTypeName . }
+ORDER BY ?contentTypeName`,
+
+  s4:`PREFIX ont: <${ONT}>
+SELECT ?roleName
+WHERE { ?r a ont:Role ; ont:roleName ?roleName . }
+ORDER BY ?roleName`,
+
+  s5:`PREFIX ont: <${ONT}>
+SELECT ?categoryName
+WHERE { ?c a ont:Category ; ont:categoryName ?categoryName . }
+ORDER BY ?categoryName`,
+
+  s6:`PREFIX ont: <${ONT}>
+SELECT ?regionName
+WHERE { ?r a ont:Region ; ont:regionName ?regionName . }
+ORDER BY ?regionName LIMIT 30`,
+
+  s7:`PREFIX ont: <${ONT}>
+SELECT ?titleName ?contentTypeName
+WHERE {
+  ?t a ont:Title ; ont:primaryTitle ?titleName ; ont:isClassifiedAs ?ct .
+  ?ct ont:content_type_name ?contentTypeName .
+}
+ORDER BY ?contentTypeName LIMIT 30`,
+
+  s8:`PREFIX ont: <${ONT}>
+SELECT ?titleName ?akaName
+WHERE {
+  ?t a ont:Title ; ont:primaryTitle ?titleName ; ont:isAka ?aka .
+  ?aka ont:alternativeTitleName ?akaName .
+}
+ORDER BY ?titleName LIMIT 30`,
+
+  nt1:`PREFIX ont: <${ONT}>
+SELECT ?titleName ?contentTypeName
+       (COUNT(DISTINCT ?talent) AS ?talentCount)
+       (GROUP_CONCAT(DISTINCT COALESCE(?genreName, "") ; separator=", ") AS ?genres)
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ;
+         ont:isClassifiedAs ?ct ; ont:contains ?participation .
+  ?ct ont:content_type_name ?contentTypeName .
+  ?talent ont:participatesIn ?participation .
+  OPTIONAL { ?title ont:hasGenre ?genre . ?genre ont:genreName ?genreName . }
+}
+GROUP BY ?title ?titleName ?contentTypeName
+ORDER BY DESC(?talentCount) LIMIT 15`,
+
+  nt2:`PREFIX ont: <${ONT}>
+SELECT ?talentName (COUNT(?roleName) AS ?roleCount)
+       (GROUP_CONCAT(?roleName ; separator=", ") AS ?roles)
+WHERE {
+  ?talent ont:participatesIn ?participation ; ont:talentName ?talentName .
+  ?participation ont:plays ?role .
+  ?role ont:roleName ?roleName .
+}
+GROUP BY ?talent ?talentName
+HAVING (COUNT(?roleName) > 2)
+ORDER BY DESC(?roleCount) LIMIT 15`,
+
+  nt3:`PREFIX ont: <${ONT}>
+SELECT ?titleName ?akaName ?regionName ?titleTypeName
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ; ont:isAka ?aka .
+  ?aka ont:alternativeTitleName ?akaName ; ont:isFrom ?region .
+  ?region ont:regionName ?regionName .
+  OPTIONAL { ?aka ont:hasType ?tt . ?tt ont:title_type_name ?titleTypeName . }
+}
+ORDER BY ?titleName LIMIT 30`,
+
+  nt4:`PREFIX ont: <${ONT}>
+SELECT ?roleName ?categoryName (COUNT(DISTINCT ?talent) AS ?talentCount)
+WHERE {
+  ?talent a ont:Talent ; ont:participatesIn ?participation .
+  ?participation ont:plays ?role ; ont:as ?category .
+  ?role ont:roleName ?roleName .
+  ?category ont:categoryName ?categoryName .
+}
+GROUP BY ?roleName ?categoryName
+ORDER BY DESC(?talentCount) LIMIT 20`,
+
+  nt5:`PREFIX ont: <${ONT}>
+SELECT ?genreName (COUNT(DISTINCT ?title) AS ?titleCount)
+       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=", ") AS ?contentTypes)
+WHERE {
+  ?title a ont:Title ; ont:hasGenre ?genre ; ont:isClassifiedAs ?ct .
+  ?genre ont:genreName ?genreName .
+  ?ct ont:content_type_name ?contentTypeName .
+}
+GROUP BY ?genre ?genreName
+ORDER BY DESC(?titleCount)`
+};
+
+function onSelect() {
+  const k = document.getElementById('querySelect').value;
+  if (Q[k]) document.getElementById('editor').value = Q[k];
+}
+
+async function run() {
+  const sparql = document.getElementById('editor').value.trim();
+  if (!sparql) return;
+  document.getElementById('results').innerHTML = '<p class="msg">Running...</p>';
+  try {
+    const res = await fetch('/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sparql })
+    });
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('results').innerHTML = `<p class="err">Error: ${data.error}</p>`;
+      return;
+    }
+    if (!data.rows.length) {
+      document.getElementById('results').innerHTML = '<p class="msg">No results.</p>';
+      return;
+    }
+    let html = `<p class="row-count">${data.rows.length} row(s)</p><table><thead><tr>`;
+    data.vars.forEach(v => html += `<th>${v}</th>`);
+    html += '</tr></thead><tbody>';
+    data.rows.forEach(row => {
+      html += '<tr>';
+      row.forEach(val => html += `<td title="${val}">${val}</td>`);
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('results').innerHTML = html;
+  } catch(e) {
+    document.getElementById('results').innerHTML = `<p class="err">Error: ${e.message}</p>`;
+  }
+}
+</script>
+</body>
+</html>

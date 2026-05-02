@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SPARQL Demonstrator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/n3/1.17.2/n3.min.js"></script>
+<style>
+  body { font-family: monospace; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #fff; color: #111; }
+  h1 { font-size: 1.2rem; margin-bottom: 4px; }
+  p.sub { color: #666; font-size: 0.8rem; margin-bottom: 24px; }
+  label { font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px; }
+  input[type="file"] { margin-bottom: 16px; }
+  select { width: 100%; padding: 6px; font-family: monospace; font-size: 0.85rem; margin-bottom: 12px; }
+  textarea { width: 100%; height: 160px; font-family: monospace; font-size: 0.82rem; padding: 8px; border: 1px solid #ccc; resize: vertical; box-sizing: border-box; }
+  button { margin-top: 10px; padding: 8px 20px; font-family: monospace; font-size: 0.85rem; cursor: pointer; }
+  #status { margin-top: 8px; font-size: 0.8rem; color: #666; }
+  #results { margin-top: 20px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+  th { background: #f0f0f0; border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+  td { border: 1px solid #ddd; padding: 5px 10px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .msg { color: #666; font-size: 0.85rem; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<h1>AudiovisualOntology — SPARQL Demonstrator</h1>
+<p class="sub">ANKRI Mohamed-Khalil · MICHON Charlotte · PAULIS Antoine</p>
+
+<label>1. Load your out.ttl</label>
+<input type="file" id="ttlFile" accept=".ttl">
+<div id="status">No file loaded.</div>
+
+<br>
+<label>2. Select a query</label>
+<select id="querySelect" onchange="onQuerySelect()">
+  <option value="">— choose a query —</option>
+  <optgroup label="Simple">
+    <option value="s1">S1 · Titles and start year</option>
+    <option value="s2">S2 · All genres</option>
+    <option value="s3">S3 · All content types</option>
+    <option value="s4">S4 · All roles</option>
+    <option value="s5">S5 · All categories</option>
+    <option value="s6">S6 · All regions</option>
+    <option value="s7">S7 · Titles with content type</option>
+    <option value="s8">S8 · Alternative titles</option>
+  </optgroup>
+  <optgroup label="Non-Trivial">
+    <option value="nt1">NT1 · Title profile summary</option>
+    <option value="nt2">NT2 · Versatile talents</option>
+    <option value="nt3">NT3 · Multilingual AKA titles</option>
+    <option value="nt4">NT4 · Roles × categories breakdown</option>
+    <option value="nt5">NT5 · Genre × content type distribution</option>
+  </optgroup>
+</select>
+
+<label>3. Edit or write your SPARQL query</label>
+<textarea id="queryEditor" placeholder="Write your SPARQL query here..."></textarea>
+
+<button onclick="runQuery()">▶ Run Query</button>
+
+<div id="results"><p class="msg">Results will appear here.</p></div>
+
+<script>
+const ONT = 'http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#';
+
+const QUERIES = {
+  s1: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?startYear
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ; ont:startYear ?startYear .
+}
+ORDER BY ?startYear LIMIT 30`,
+
+  s2: `PREFIX ont: <${ONT}>
+SELECT ?genreName
+WHERE { ?genre a ont:Genre ; ont:genreName ?genreName . }
+ORDER BY ?genreName`,
+
+  s3: `PREFIX ont: <${ONT}>
+SELECT ?contentTypeName
+WHERE { ?ct a ont:ContentType ; ont:content_type_name ?contentTypeName . }
+ORDER BY ?contentTypeName`,
+
+  s4: `PREFIX ont: <${ONT}>
+SELECT ?roleName
+WHERE { ?role a ont:Role ; ont:roleName ?roleName . }
+ORDER BY ?roleName`,
+
+  s5: `PREFIX ont: <${ONT}>
+SELECT ?categoryName
+WHERE { ?cat a ont:Category ; ont:categoryName ?categoryName . }
+ORDER BY ?categoryName`,
+
+  s6: `PREFIX ont: <${ONT}>
+SELECT ?regionName
+WHERE { ?r a ont:Region ; ont:regionName ?regionName . }
+ORDER BY ?regionName LIMIT 30`,
+
+  s7: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?contentTypeName
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ; ont:isClassifiedAs ?ct .
+  ?ct ont:content_type_name ?contentTypeName .
+}
+ORDER BY ?contentTypeName LIMIT 30`,
+
+  s8: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?akaName
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ; ont:isAka ?aka .
+  ?aka ont:alternativeTitleName ?akaName .
+}
+ORDER BY ?titleName LIMIT 30`,
+
+  nt1: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?contentTypeName
+       (COUNT(DISTINCT ?talent) AS ?talentCount)
+       (GROUP_CONCAT(DISTINCT ?genreName ; separator=", ") AS ?genres)
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ;
+         ont:isClassifiedAs ?ct ; ont:contains ?participation .
+  ?ct ont:content_type_name ?contentTypeName .
+  ?talent ont:participatesIn ?participation .
+  OPTIONAL { ?title ont:hasGenre ?genre . ?genre ont:genreName ?genreName . }
+}
+GROUP BY ?title ?titleName ?contentTypeName
+ORDER BY DESC(?talentCount) LIMIT 15`,
+
+  nt2: `PREFIX ont: <${ONT}>
+SELECT ?talentName (COUNT(?roleName) AS ?roleCount)
+       (GROUP_CONCAT(?roleName ; separator=", ") AS ?roles)
+WHERE {
+  ?talent ont:participatesIn ?participation ; ont:talentName ?talentName .
+  ?participation ont:plays ?role .
+  ?role ont:roleName ?roleName .
+}
+GROUP BY ?talent ?talentName
+HAVING (COUNT(?roleName) > 2)
+ORDER BY DESC(?roleCount) LIMIT 15`,
+
+  nt3: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?akaName ?regionName ?titleTypeName
+WHERE {
+  ?title a ont:Title ; ont:primaryTitle ?titleName ; ont:isAka ?aka .
+  ?aka ont:alternativeTitleName ?akaName ; ont:isFrom ?region .
+  ?region ont:regionName ?regionName .
+  OPTIONAL { ?aka ont:hasType ?tt . ?tt ont:title_type_name ?titleTypeName . }
+}
+ORDER BY ?titleName LIMIT 30`,
+
+  nt4: `PREFIX ont: <${ONT}>
+SELECT ?roleName ?categoryName (COUNT(DISTINCT ?talent) AS ?talentCount)
+WHERE {
+  ?talent a ont:Talent ; ont:participatesIn ?participation .
+  ?participation ont:plays ?role ; ont:as ?category .
+  ?role ont:roleName ?roleName .
+  ?category ont:categoryName ?categoryName .
+}
+GROUP BY ?roleName ?categoryName
+ORDER BY DESC(?talentCount) LIMIT 20`,
+
+  nt5: `PREFIX ont: <${ONT}>
+SELECT ?genreName (COUNT(DISTINCT ?title) AS ?titleCount)
+       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=", ") AS ?contentTypes)
+WHERE {
+  ?title a ont:Title ; ont:hasGenre ?genre ; ont:isClassifiedAs ?ct .
+  ?genre ont:genreName ?genreName .
+  ?ct ont:content_type_name ?contentTypeName .
+}
+GROUP BY ?genre ?genreName
+ORDER BY DESC(?titleCount)`
+};
+
+let store = null;
+
+document.getElementById('ttlFile').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  document.getElementById('status').textContent = 'Loading...';
+  try {
+    const text = await file.text();
+    const parser = new N3.Parser();
+    store = new N3.Store();
+    store.addQuads(parser.parse(text));
+    document.getElementById('status').textContent = `✓ Loaded — ${store.size.toLocaleString()} triples`;
+  } catch(e) {
+    document.getElementById('status').textContent = '✗ Error: ' + e.message;
+  }
+});
+
+function onQuerySelect() {
+  const key = document.getElementById('querySelect').value;
+  if (QUERIES[key]) document.getElementById('queryEditor').value = QUERIES[key];
+}
+
+function runQuery() {
+  if (!store) { alert('Load a TTL file first.'); return; }
+  const sparql = document.getElementById('queryEditor').value.trim();
+  if (!sparql) return;
+  try {
+    const results = executeSPARQL(sparql);
+    renderResults(results);
+  } catch(e) {
+    document.getElementById('results').innerHTML = `<p class="msg" style="color:red">Error: ${e.message}</p>`;
+  }
+}
+
+function executeSPARQL(sparql) {
+  const prefixMap = {};
+  const prefixRe = /PREFIX\s+(\w*):\s*<([^>]+)>/gi;
+  let m;
+  while ((m = prefixRe.exec(sparql)) !== null) prefixMap[m[1]] = m[2];
+
+  function expand(uri) {
+    uri = uri.trim();
+    if (uri.startsWith('<') && uri.endsWith('>')) return uri.slice(1,-1);
+    if (uri === 'a') return 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+    const c = uri.indexOf(':');
+    if (c > 0 && prefixMap[uri.slice(0,c)] !== undefined) return prefixMap[uri.slice(0,c)] + uri.slice(c+1);
+    return uri;
+  }
+
+  function short(uri) {
+    for (const [p,ns] of Object.entries(prefixMap))
+      if (uri.startsWith(ns)) return (p?p+':':'') + uri.slice(ns.length);
+    return uri.split(/[/#]/).pop() || uri;
+  }
+
+  const selectMatch = sparql.match(/SELECT\s+(DISTINCT\s+)?(.*?)\s+WHERE/is);
+  if (!selectMatch) throw new Error('Only SELECT queries supported.');
+  const varDefs = [];
+  const vRe = /\(([^)]+)\s+AS\s+(\?[\w]+)\)|(\?[\w]+)/g;
+  let vm;
+  while ((vm = vRe.exec(selectMatch[2])) !== null)
+    varDefs.push(vm[2] ? {name:vm[2].slice(1),expr:vm[1]} : {name:vm[3].slice(1),expr:null});
+
+  const whereMatch = sparql.match(/WHERE\s*\{([\s\S]*?)\}(?:\s*(?:GROUP|ORDER|HAVING|LIMIT|$))/i);
+  if (!whereMatch) throw new Error('Cannot parse WHERE clause.');
+
+  const limitMatch = sparql.match(/LIMIT\s+(\d+)/i);
+  const limit = limitMatch ? parseInt(limitMatch[1]) : 500;
+  const groupMatch = sparql.match(/GROUP BY\s+((?:\?[\w]+\s*)+)/i);
+  const groupVars = groupMatch ? groupMatch[1].trim().split(/\s+/).map(v=>v.slice(1)) : [];
+  const havingMatch = sparql.match(/HAVING\s*\(([^)]+)\)/i);
+  const orderMatch = sparql.match(/ORDER BY\s+((?:(?:ASC|DESC)\s*\()?\?[\w]+\)?(?:\s+(?:(?:ASC|DESC)\s*\()?\?[\w]+\)?)*)/i);
+
+  const patterns = parseWhere(whereMatch[1], prefixMap, expand);
+  let bindings = matchAll(patterns, store);
+
+  if (groupVars.length > 0 || varDefs.some(v=>v.expr)) bindings = groupBy(bindings, groupVars, varDefs);
+  if (havingMatch) bindings = having(bindings, havingMatch[1]);
+  if (orderMatch) bindings = orderBy(bindings, orderMatch[1]);
+  bindings = bindings.slice(0, limit);
+
+  return { vars: varDefs.map(v=>v.name), bindings, short };
+}
+
+function parseWhere(clause, prefixMap, expand) {
+  const patterns = [];
+  const optRe = /OPTIONAL\s*\{([^{}]*)\}/gi;
+  let om; const optBlocks = [];
+  let main = clause;
+  while ((om = optRe.exec(clause)) !== null) { optBlocks.push(om[1]); main = main.replace(om[0],''); }
+
+  function parseBlock(block, optional) {
+    const triples = [];
+    block.split(/\.(?!\d)/).map(s=>s.trim()).filter(Boolean).forEach(line => {
+      let subj = null;
+      line.split(';').map(s=>s.trim()).forEach(part => {
+        const tok = tokenize(part);
+        if (!tok.length) return;
+        if (!subj) {
+          if (tok.length >= 3) { subj = tok[0]; triples.push({s:expand(tok[0]),p:expand(tok[1]),o:expandO(tok[2],prefixMap,expand),optional}); }
+        } else {
+          if (tok.length >= 2) triples.push({s:expand(subj),p:expand(tok[0]),o:expandO(tok[1],prefixMap,expand),optional});
+        }
+      });
+    });
+    return triples;
+  }
+  patterns.push(...parseBlock(main,false));
+  optBlocks.forEach(b => patterns.push(...parseBlock(b,true)));
+  return patterns;
+}
+
+function expandO(t,prefixMap,expand) {
+  if (!t) return t;
+  if (t.startsWith('?')) return t;
+  if (t.startsWith('"')) return t;
+  return expand(t);
+}
+
+function tokenize(str) {
+  const tokens=[]; let i=0;
+  while(i<str.length){
+    if(' \t\n'.includes(str[i])){i++;continue;}
+    if(str[i]==='<'){const e=str.indexOf('>',i);tokens.push(str.slice(i,e+1));i=e+1;}
+    else if(str[i]==='"'){const e=str.indexOf('"',i+1);tokens.push(str.slice(i,e+1));i=e+1;}
+    else{let e=i;while(e<str.length&&!' \t\n'.includes(str[e]))e++;tokens.push(str.slice(i,e));i=e;}
+  }
+  return tokens.filter(Boolean);
+}
+
+function tv(term){
+  if(!term)return null;
+  return term.termType==='BlankNode'?'_:'+term.value:term.value;
+}
+
+function mkNode(v){
+  if(!v)return null;
+  if(v.startsWith('"'))return N3.DataFactory.literal(v.slice(1,v.lastIndexOf('"')));
+  return N3.DataFactory.namedNode(v);
+}
+
+function matchAll(patterns, store) {
+  let bindings = [{}];
+  const req = patterns.filter(p=>!p.optional);
+  const opt = patterns.filter(p=>p.optional);
+
+  for(const p of req){
+    const nb=[];
+    for(const b of bindings){
+      const s=p.s.startsWith('?')?b[p.s.slice(1)]||null:p.s;
+      const pr=p.p.startsWith('?')?b[p.p.slice(1)]||null:p.p;
+      const o=p.o&&p.o.startsWith('?')?b[p.o.slice(1)]||null:p.o;
+      store.getQuads(s?N3.DataFactory.namedNode(s):null,pr?N3.DataFactory.namedNode(pr):null,o?mkNode(o):null,null)
+        .forEach(q=>{
+          const nb2={...b};
+          if(p.s.startsWith('?'))nb2[p.s.slice(1)]=tv(q.subject);
+          if(p.p.startsWith('?'))nb2[p.p.slice(1)]=tv(q.predicate);
+          if(p.o&&p.o.startsWith('?'))nb2[p.o.slice(1)]=tv(q.object);
+          nb.push(nb2);
+        });
+    }
+    bindings=nb;
+    if(!bindings.length)break;
+  }
+
+  for(const p of opt){
+    const nb=[];
+    for(const b of bindings){
+      const s=p.s.startsWith('?')?b[p.s.slice(1)]||null:p.s;
+      const pr=p.p.startsWith('?')?b[p.p.slice(1)]||null:p.p;
+      const o=p.o&&p.o.startsWith('?')?b[p.o.slice(1)]||null:p.o;
+      const quads=store.getQuads(s?N3.DataFactory.namedNode(s):null,pr?N3.DataFactory.namedNode(pr):null,o?mkNode(o):null,null);
+      if(!quads.length){nb.push(b);}
+      else quads.forEach(q=>{
+        const nb2={...b};
+        if(p.s.startsWith('?'))nb2[p.s.slice(1)]=tv(q.subject);
+        if(p.p.startsWith('?'))nb2[p.p.slice(1)]=tv(q.predicate);
+        if(p.o&&p.o.startsWith('?'))nb2[p.o.slice(1)]=tv(q.object);
+        nb.push(nb2);
+      });
+    }
+    bindings=nb;
+  }
+  return bindings;
+}
+
+function groupBy(bindings, groupVars, varDefs) {
+  const groups=new Map();
+  for(const b of bindings){
+    const key=groupVars.map(v=>b[v]||'').join('|');
+    if(!groups.has(key))groups.set(key,{rep:b,rows:[]});
+    groups.get(key).rows.push(b);
+  }
+  const result=[];
+  for(const[,g] of groups){
+    const nb={...g.rep};
+    for(const v of varDefs){
+      if(!v.expr)continue;
+      const e=v.expr.trim();
+      const cm=e.match(/COUNT\s*\(\s*(DISTINCT\s+)?(\?[\w]+|\*)\s*\)/i);
+      if(cm){
+        const vn=cm[2]==='*'?null:cm[2].slice(1);
+        let vals=g.rows.map(r=>vn?r[vn]:JSON.stringify(r)).filter(x=>x!=null);
+        if(cm[1])vals=[...new Set(vals)];
+        nb[v.name]=String(vals.length); continue;
+      }
+      const gc=e.match(/GROUP_CONCAT\s*\(\s*(DISTINCT\s+)?(\?[\w]+)\s*(?:;\s*separator\s*=\s*"([^"]*)")?\s*\)/i);
+      if(gc){
+        const vn=gc[2].slice(1); const sep=gc[3]!==undefined?gc[3]:' ';
+        let vals=g.rows.map(r=>r[vn]).filter(x=>x!=null);
+        if(gc[1])vals=[...new Set(vals)];
+        nb[v.name]=vals.join(sep);
+      }
+    }
+    result.push(nb);
+  }
+  return result;
+}
+
+function having(bindings, expr) {
+  return bindings.filter(b=>{
+    const cm=expr.match(/COUNT\s*\(\s*(DISTINCT\s+)?(\?[\w]+|\*)\s*\)\s*([><=!]+)\s*(\d+)/i);
+    if(cm){
+      const vn=cm[2]==='*'?null:cm[2].slice(1);
+      const count=parseInt(b[vn]||'0');
+      const t=parseInt(cm[4]);
+      const op=cm[3];
+      if(op==='>')return count>t; if(op==='>=')return count>=t;
+      if(op==='<')return count<t; if(op==='<=')return count<=t;
+      return count===t;
+    }
+    const vm=expr.match(/\?(\w+)\s*([><=!]+)\s*(\d+)/);
+    if(vm){
+      const v=parseInt(b[vm[1]]||'0'),t=parseInt(vm[3]),op=vm[2];
+      if(op==='>')return v>t; if(op==='>=')return v>=t;
+    }
+    return true;
+  });
+}
+
+function orderBy(bindings, clause) {
+  const desc=clause.toUpperCase().includes('DESC');
+  const vn=clause.replace(/(?:ASC|DESC)\s*\(|\)/gi,'').trim().replace(/\?/g,'').trim().split(/\s+/)[0];
+  return [...bindings].sort((a,b)=>{
+    const va=a[vn]||'', vb=b[vn]||'';
+    const na=parseFloat(va), nb=parseFloat(vb);
+    const cmp=(!isNaN(na)&&!isNaN(nb))?na-nb:va.localeCompare(vb);
+    return desc?-cmp:cmp;
+  });
+}
+
+function renderResults({vars, bindings, short}) {
+  if(!bindings.length){
+    document.getElementById('results').innerHTML='<p class="msg">No results.</p>'; return;
+  }
+  let html=`<p class="msg">${bindings.length} row(s)</p><table><thead><tr>`;
+  vars.forEach(v=>html+=`<th>${v}</th>`);
+  html+='</tr></thead><tbody>';
+  bindings.forEach(row=>{
+    html+='<tr>';
+    vars.forEach(v=>{
+      const val=row[v]!=null?row[v]:'';
+      const display=val.startsWith('http://')||val.startsWith('https://')?short(val):val;
+      html+=`<td title="${val}">${display}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('results').innerHTML=html;
+}
+</script>
+</body>
+</html>

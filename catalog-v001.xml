@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri id="User Entered Import Resolution" name="file:/C:/Users/ANKRI/Desktop/Q2/KRR/Project/M3-r2rml/output.ttl" uri="out.ttl"/>
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public">
+        <uri id="Automatically generated entry, Timestamp=1777382839354" name="http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology" uri="audiovisual-ontology-M3.owx"/>
+        <uri id="Automatically generated entry, Timestamp=1777382839354" name="shadowed:http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology" uri="MF/audiovisual-ontology-M3.owx"/>
+    </group>
+</catalog>

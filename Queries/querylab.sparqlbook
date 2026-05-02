@@ -1,0 +1,182 @@
+[
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?startYear\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:startYear ?startYear .\r\n}\r\nORDER BY ?startYear\r\nLIMIT 10",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Retrieves basic biographical data for all talents, useful to verify that the Talent class and its data properties are correctly populated.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?talentName ?birthYear ?deathYear\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:talentName ?talentName .\r\n    OPTIONAL { ?talent ont:birthYear ?birthYear }\r\n    OPTIONAL { ?talent ont:deathYear ?deathYear }\r\n}\r\nORDER BY ?talentName\r\nLIMIT 5",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Simply verifies that all Genre individuals are loaded and their names are correctly populated from the genre table.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?genreName\r\nWHERE {\r\n    ?genre a ont:Genre ;\r\n           ont:genreName ?genreName .\r\n}\r\nORDER BY ?genreName",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Verifies that all ContentType individuals are loaded correctly from the content_type table, confirming the dictionary mapping works.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?contentTypeName\r\nWHERE {\r\n    ?ct a ont:ContentType ;\r\n        ont:content_type_name ?contentTypeName .\r\n}\r\nORDER BY ?contentTypeName",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Verifies that all Role individuals are loaded correctly from the role table — this was one of the originally problematic classes, so this query directly confirms the fix worked.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?contentTypeName\r\nWHERE {\r\n    ?ct a ont:ContentType ;\r\n        ont:content_type_name ?contentTypeName .\r\n}\r\nORDER BY ?contentTypeName",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Retrieves all Category individuals and their names, confirming that the category table was mapped correctly and that ont:categoryName is properly populated.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?categoryName\r\nWHERE {\r\n    ?category a ont:Category ;\r\n              ont:categoryName ?categoryName .\r\n}\r\nORDER BY ?categoryName",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Retrieves all TitleType individuals — this was the other originally problematic class alongside Role, so this query directly confirms it is now correctly populated.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleTypeName\r\nWHERE {\r\n    ?tt a ont:TitleType ;\r\n        ont:title_type_name ?titleTypeName .\r\n}\r\nORDER BY ?titleTypeName",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Retrieves all Region individuals and their names, confirming that the region table was correctly mapped and that ont:regionName is properly populated.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?regionName\r\nWHERE {\r\n    ?region a ont:Region ;\r\n            ont:regionName ?regionName .\r\n}\r\nORDER BY ?regionName\r\nLIMIT 5",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "###  Verifies the isClassifiedAs object property works correctly, linking each Title to its ContentType — a direct test of the foreign key content_type_id in the title table being correctly resolved.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?contentTypeName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n}\r\nORDER BY ?contentTypeName\r\nLIMIT 5",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Verifies the isAka object property works correctly, linking each AlternativeTitle back to its parent Title — confirming the title_aka table was mapped correctly.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?akaName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isAka ?aka .\r\n    ?aka ont:alternativeTitleName ?akaName .\r\n}\r\nORDER BY ?titleName\r\nLIMIT 5",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Retrieves each title with its complete list of talents and their specific roles, giving a full cast sheet per title. Tests the complete Title → Participation → Talent → Role chain in one query.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?talentName ?roleName ?categoryName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:contains ?participation .\r\n    ?talent ont:participatesIn ?participation ;\r\n            ont:talentName ?talentName .\r\n    ?participation ont:plays ?role ;\r\n                   ont:as ?category .\r\n    ?role ont:roleName ?roleName .\r\n    ?category ont:categoryName ?categoryName .\r\n}\r\nORDER BY ?titleName ?talentName\r\nLIMIT 20",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Combines genre information with talent count per title, showing how busy each production was. Tests Title → Genre and Title → Participation branches simultaneously with aggregation.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName \r\n       (GROUP_CONCAT(DISTINCT ?genreName ; separator=\", \") AS ?genres)\r\n       (COUNT(DISTINCT ?talent) AS ?talentCount)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:contains ?participation .\r\n    ?talent ont:participatesIn ?participation .\r\n    OPTIONAL {\r\n        ?title ont:hasGenre ?genre .\r\n        ?genre ont:genreName ?genreName .\r\n    }\r\n}\r\nGROUP BY ?title ?titleName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 20",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Links talents to the genres of the titles they worked on, revealing which genres each person has contributed to. Tests the indirect path Talent → Participation → Title → Genre which spans the full width of the ontology.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?talentName \r\n       (COUNT(DISTINCT ?genreName) AS ?genreCount)\r\n       (GROUP_CONCAT(DISTINCT ?genreName ; separator=\", \") AS ?genres)\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:talentName ?talentName ;\r\n            ont:participatesIn ?participation .\r\n    ?title ont:contains ?participation ;\r\n           ont:hasGenre ?genre .\r\n    ?genre ont:genreName ?genreName .\r\n}\r\nGROUP BY ?talent ?talentName\r\nORDER BY DESC(?genreCount)\r\nLIMIT 20",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Shows how many alternative titles each title has and how many distinct regions it covers, revealing the international distribution reach of each production. Tests aggregation over the Title → AlternativeTitle → Region chain.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName\r\n       (COUNT(DISTINCT ?aka) AS ?akaCount)\r\n       (COUNT(DISTINCT ?region) AS ?regionCount)\r\n       (GROUP_CONCAT(DISTINCT ?regionName ; separator=\", \") AS ?regions)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isAka ?aka .\r\n    ?aka ont:isFrom ?region .\r\n    ?region ont:regionName ?regionName .\r\n}\r\nGROUP BY ?title ?titleName\r\nORDER BY DESC(?akaCount)\r\nLIMIT 20",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### Retrieves talents along with the specific job descriptions recorded in their participations, grouped by category. Tests the ont:job data property on Participation which captures free-text job details beyond the structured role and category values.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?talentName ?categoryName ?jobDescription ?titleName\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:talentName ?talentName ;\r\n            ont:participatesIn ?participation .\r\n    ?participation ont:as ?category ;\r\n                   ont:job ?jobDescription .\r\n    ?category ont:categoryName ?categoryName .\r\n    ?title ont:contains ?participation ;\r\n           ont:primaryTitle ?titleName .\r\n}\r\nORDER BY ?categoryName ?talentName\r\nLIMIT 20",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "### ",
+    "metadata": {}
+  }
+]

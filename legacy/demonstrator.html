@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AudiovisualOntology — SPARQL Demonstrator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/n3/1.17.2/n3.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #7c6aff;
+    --accent2: #ff6a8a;
+    --accent3: #6affca;
+    --text: #e8e8f0;
+    --text-dim: #7878a0;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 2.5rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .logo-area h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-area p {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+    letter-spacing: 0.05em;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: background 0.3s;
+  }
+
+  .status-dot.loaded { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+  .status-dot.error { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+
+  /* Load section */
+  .load-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .load-label {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .file-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  input[type="file"] {
+    width: 100%;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  input[type="file"]:hover { border-color: var(--accent); }
+  input[type="file"]::file-selector-button {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 0.8rem;
+  }
+
+  .btn {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: #6a58e8; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-run {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 0.9rem;
+    padding: 0.75rem 2rem;
+  }
+  .btn-run:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,106,255,0.3); }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Main layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Query sidebar */
+  .query-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .sidebar-section-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.8rem 0.5rem 0.4rem;
+  }
+
+  .query-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .query-btn:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+
+  .query-btn.active {
+    border-color: var(--accent);
+    background: rgba(124,106,255,0.1);
+  }
+
+  .query-btn-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .query-btn.active .query-btn-tag {
+    background: rgba(124,106,255,0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .query-btn-label {
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* Editor panel */
+  .editor-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .panel-title {
+    font-size: 0.75rem;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .query-purpose {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  textarea {
+    width: 100%;
+    height: 220px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    padding: 1.2rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+    tab-size: 2;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,106,255,0.1);
+  }
+
+  /* Results */
+  .results-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .results-title {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .results-count {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent3);
+  }
+
+  .results-body {
+    overflow-x: auto;
+    max-height: 450px;
+    overflow-y: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-weight: 500;
+    padding: 0.8rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    color: var(--text);
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  tr:hover td { background: rgba(124,106,255,0.04); }
+  tr:last-child td { border-bottom: none; }
+
+  td.uri {
+    color: var(--text-dim);
+    font-size: 0.72rem;
+  }
+
+  td.number { color: var(--accent3); }
+
+  .empty-state {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  .empty-state .icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    opacity: 0.4;
+  }
+
+  .error-msg {
+    padding: 1.5rem;
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    background: rgba(255,106,138,0.05);
+    border: 1px solid rgba(255,106,138,0.2);
+    border-radius: 8px;
+    margin: 1rem;
+  }
+
+  .loading-spinner {
+    display: none;
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1.2rem;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .header-inner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-inner">
+      <div class="logo-area">
+        <h1>AudiovisualOntology</h1>
+        <p>SPARQL DEMONSTRATOR — KRR PROJECT M3 · ANKRI / MICHON / PAULIS</p>
+      </div>
+      <div class="status-badge">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">No data loaded</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Load section -->
+  <div class="load-section">
+    <span class="load-label">Load TTL</span>
+    <div class="file-input-wrapper">
+      <input type="file" id="ttlFile" accept=".ttl,.n3,.rdf" />
+    </div>
+    <button class="btn btn-primary" id="loadBtn" onclick="loadTTL()">Load Data</button>
+  </div>
+
+  <!-- Stats bar (hidden until loaded) -->
+  <div class="stats-bar" id="statsBar" style="display:none">
+    <div class="stat-card"><div class="stat-value" id="statTitles">—</div><div class="stat-label">Titles</div></div>
+    <div class="stat-card"><div class="stat-value" id="statTalents">—</div><div class="stat-label">Talents</div></div>
+    <div class="stat-card"><div class="stat-value" id="statParticipations">—</div><div class="stat-label">Participations</div></div>
+    <div class="stat-card"><div class="stat-value" id="statGenres">—</div><div class="stat-label">Genres</div></div>
+    <div class="stat-card"><div class="stat-value" id="statRegions">—</div><div class="stat-label">Regions</div></div>
+    <div class="stat-card"><div class="stat-value" id="statTriples">—</div><div class="stat-label">Triples</div></div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="main-grid">
+
+    <!-- Sidebar -->
+    <div class="query-sidebar">
+      <div class="sidebar-section-label">— Simple Queries</div>
+      <button class="query-btn" onclick="selectQuery(0)">
+        <span class="query-btn-tag">S1</span>
+        <span class="query-btn-label">Titles & start year</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(1)">
+        <span class="query-btn-tag">S2</span>
+        <span class="query-btn-label">All genres</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(2)">
+        <span class="query-btn-tag">S3</span>
+        <span class="query-btn-label">All content types</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(3)">
+        <span class="query-btn-tag">S4</span>
+        <span class="query-btn-label">All roles</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(4)">
+        <span class="query-btn-tag">S5</span>
+        <span class="query-btn-label">All categories</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(5)">
+        <span class="query-btn-tag">S6</span>
+        <span class="query-btn-label">All regions</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(6)">
+        <span class="query-btn-tag">S7</span>
+        <span class="query-btn-label">Titles with content type</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(7)">
+        <span class="query-btn-tag">S8</span>
+        <span class="query-btn-label">Alternative titles</span>
+      </button>
+
+      <div class="sidebar-section-label">— Medium Queries</div>
+      <button class="query-btn" onclick="selectQuery(8)">
+        <span class="query-btn-tag">M1</span>
+        <span class="query-btn-label">Full cast & roles</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(9)">
+        <span class="query-btn-tag">M2</span>
+        <span class="query-btn-label">Titles genres & talent count</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(10)">
+        <span class="query-btn-tag">M3</span>
+        <span class="query-btn-label">Talents by genre</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(11)">
+        <span class="query-btn-tag">M4</span>
+        <span class="query-btn-label">AKA regional coverage</span>
+      </button>
+
+      <div class="sidebar-section-label">— Non-Trivial Queries</div>
+      <button class="query-btn" onclick="selectQuery(12)">
+        <span class="query-btn-tag">NT1</span>
+        <span class="query-btn-label">Title profile summary</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(13)">
+        <span class="query-btn-tag">NT2</span>
+        <span class="query-btn-label">Versatile talents</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(14)">
+        <span class="query-btn-tag">NT3</span>
+        <span class="query-btn-label">Multilingual AKA titles</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(15)">
+        <span class="query-btn-tag">NT4</span>
+        <span class="query-btn-label">Roles × categories breakdown</span>
+      </button>
+      <button class="query-btn" onclick="selectQuery(16)">
+        <span class="query-btn-tag">NT5</span>
+        <span class="query-btn-label">Genre × content type dist.</span>
+      </button>
+    </div>
+
+    <!-- Editor panel -->
+    <div class="editor-panel">
+      <div class="panel-header">
+        <span class="panel-title">— SPARQL Editor</span>
+        <button class="btn btn-run" id="runBtn" onclick="runQuery()" disabled>▶ Run Query</button>
+      </div>
+      <div class="query-purpose" id="queryPurpose">Select a query from the sidebar or write your own below.</div>
+      <textarea id="queryEditor" spellcheck="false" placeholder="Write your SPARQL query here..."></textarea>
+
+      <div class="results-section">
+        <div class="results-header">
+          <span class="results-title">— Results</span>
+          <span class="results-count" id="resultsCount"></span>
+        </div>
+        <div class="loading-spinner" id="loadingSpinner">
+          <div class="spinner"></div>
+          Running query...
+        </div>
+        <div class="results-body" id="resultsBody">
+          <div class="empty-state">
+            <div class="icon">◎</div>
+            Load your out.ttl file and select a query to begin.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/n3/1.17.2/n3.min.js"></script>
+<script>
+const ONT = 'http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#';
+const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+
+const QUERIES = [
+  {
+    tag: 'S1', label: 'Titles & start year',
+    purpose: 'Lists all Title individuals with their start year, verifying that primaryTitle and startYear data properties are correctly populated.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?startYear
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:startYear ?startYear .
+}
+ORDER BY ?startYear
+LIMIT 30`
+  },
+  {
+    tag: 'S2', label: 'All genres',
+    purpose: 'Retrieves all Genre individuals and confirms the genreName property is populated from the genre table.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?genreName
+WHERE {
+  ?genre a ont:Genre ;
+         ont:genreName ?genreName .
+}
+ORDER BY ?genreName`
+  },
+  {
+    tag: 'S3', label: 'All content types',
+    purpose: 'Lists all ContentType dictionary individuals, confirming the content_type table was mapped correctly.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?contentTypeName
+WHERE {
+  ?ct a ont:ContentType ;
+      ont:content_type_name ?contentTypeName .
+}
+ORDER BY ?contentTypeName`
+  },
+  {
+    tag: 'S4', label: 'All roles',
+    purpose: 'Lists all Role individuals — one of the originally problematic classes. Non-empty results confirm the fix worked.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?roleName
+WHERE {
+  ?role a ont:Role ;
+        ont:roleName ?roleName .
+}
+ORDER BY ?roleName`
+  },
+  {
+    tag: 'S5', label: 'All categories',
+    purpose: 'Retrieves all Category individuals and their names from the category table.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?categoryName
+WHERE {
+  ?category a ont:Category ;
+            ont:categoryName ?categoryName .
+}
+ORDER BY ?categoryName`
+  },
+  {
+    tag: 'S6', label: 'All regions',
+    purpose: 'Lists all Region individuals confirming the region table was mapped and regionName is populated.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?regionName
+WHERE {
+  ?region a ont:Region ;
+          ont:regionName ?regionName .
+}
+ORDER BY ?regionName
+LIMIT 30`
+  },
+  {
+    tag: 'S7', label: 'Titles with content type',
+    purpose: 'Verifies the isClassifiedAs object property works, linking each Title to its ContentType.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?contentTypeName
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:isClassifiedAs ?ct .
+  ?ct ont:content_type_name ?contentTypeName .
+}
+ORDER BY ?contentTypeName
+LIMIT 30`
+  },
+  {
+    tag: 'S8', label: 'Alternative titles',
+    purpose: 'Verifies the isAka object property, linking each AlternativeTitle back to its parent Title.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?akaName
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:isAka ?aka .
+  ?aka ont:alternativeTitleName ?akaName .
+}
+ORDER BY ?titleName
+LIMIT 30`
+  },
+  {
+    tag: 'M1', label: 'Full cast & roles',
+    purpose: 'Retrieves each title with its complete cast and their roles. Tests the full Title → Participation → Talent → Role chain.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?talentName ?roleName ?categoryName
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:contains ?participation .
+  ?talent ont:participatesIn ?participation ;
+          ont:talentName ?talentName .
+  ?participation ont:plays ?role ;
+                 ont:as ?category .
+  ?role ont:roleName ?roleName .
+  ?category ont:categoryName ?categoryName .
+}
+ORDER BY ?titleName ?talentName
+LIMIT 30`
+  },
+  {
+    tag: 'M2', label: 'Titles genres & talent count',
+    purpose: 'Combines genre information with talent count per title. Tests Title → Genre and Title → Participation simultaneously.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName
+       (GROUP_CONCAT(DISTINCT ?genreName ; separator=", ") AS ?genres)
+       (COUNT(DISTINCT ?talent) AS ?talentCount)
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:contains ?participation .
+  ?talent ont:participatesIn ?participation .
+  OPTIONAL {
+    ?title ont:hasGenre ?genre .
+    ?genre ont:genreName ?genreName .
+  }
+}
+GROUP BY ?title ?titleName
+ORDER BY DESC(?talentCount)
+LIMIT 20`
+  },
+  {
+    tag: 'M3', label: 'Talents by genre',
+    purpose: 'Links talents to the genres of titles they worked on. Tests the indirect path Talent → Participation → Title → Genre.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?talentName
+       (COUNT(DISTINCT ?genreName) AS ?genreCount)
+       (GROUP_CONCAT(DISTINCT ?genreName ; separator=", ") AS ?genres)
+WHERE {
+  ?talent a ont:Talent ;
+          ont:talentName ?talentName ;
+          ont:participatesIn ?participation .
+  ?title ont:contains ?participation ;
+         ont:hasGenre ?genre .
+  ?genre ont:genreName ?genreName .
+}
+GROUP BY ?talent ?talentName
+ORDER BY DESC(?genreCount)
+LIMIT 20`
+  },
+  {
+    tag: 'M4', label: 'AKA regional coverage',
+    purpose: 'Shows how many alternative titles each title has and which regions it covers. Tests Title → AlternativeTitle → Region.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName
+       (COUNT(DISTINCT ?aka) AS ?akaCount)
+       (COUNT(DISTINCT ?region) AS ?regionCount)
+       (GROUP_CONCAT(DISTINCT ?regionName ; separator=", ") AS ?regions)
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:isAka ?aka .
+  ?aka ont:isFrom ?region .
+  ?region ont:regionName ?regionName .
+}
+GROUP BY ?title ?titleName
+ORDER BY DESC(?akaCount)
+LIMIT 20`
+  },
+  {
+    tag: 'NT1', label: 'Title profile summary',
+    purpose: 'Builds a complete profile per title: content type, talent count, and all genres in one row. Uses OPTIONAL, two COUNT(DISTINCT) aggregations, and GROUP_CONCAT simultaneously.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?contentTypeName
+       (COUNT(DISTINCT ?talent) AS ?talentCount)
+       (COUNT(DISTINCT ?genreName) AS ?genreCount)
+       (GROUP_CONCAT(DISTINCT ?genreName ; separator=", ") AS ?genres)
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:isClassifiedAs ?ct ;
+         ont:contains ?participation .
+  ?ct ont:content_type_name ?contentTypeName .
+  ?talent ont:participatesIn ?participation .
+  OPTIONAL {
+    ?title ont:hasGenre ?genre .
+    ?genre ont:genreName ?genreName .
+  }
+}
+GROUP BY ?title ?titleName ?contentTypeName
+ORDER BY DESC(?talentCount)
+LIMIT 15`
+  },
+  {
+    tag: 'NT2', label: 'Versatile talents',
+    purpose: 'Identifies multi-role talents who held more than 2 roles. Exploits the Participation reification bridge — proof that ont:plays works correctly.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?talentName
+       (COUNT(?roleName) AS ?roleCount)
+       (GROUP_CONCAT(?roleName ; separator=", ") AS ?roles)
+WHERE {
+  ?talent ont:participatesIn ?participation ;
+          ont:talentName ?talentName .
+  ?participation ont:plays ?role .
+  ?role ont:roleName ?roleName .
+}
+GROUP BY ?talent ?talentName
+HAVING (COUNT(?roleName) > 2)
+ORDER BY DESC(?roleCount)
+LIMIT 15`
+  },
+  {
+    tag: 'NT3', label: 'Multilingual AKA titles',
+    purpose: 'Traverses Title → AlternativeTitle → Region with optional TitleType. Validates three junction mappings and confirms nullable region_id handling.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?titleName ?akaName ?regionName ?titleTypeName
+WHERE {
+  ?title a ont:Title ;
+         ont:primaryTitle ?titleName ;
+         ont:isAka ?aka .
+  ?aka ont:alternativeTitleName ?akaName ;
+       ont:isFrom ?region .
+  ?region ont:regionName ?regionName .
+  OPTIONAL {
+    ?aka ont:hasType ?tt .
+    ?tt ont:title_type_name ?titleTypeName .
+  }
+}
+ORDER BY ?titleName
+LIMIT 30`
+  },
+  {
+    tag: 'NT4', label: 'Roles × categories breakdown',
+    purpose: 'Cross-tabulates roles against categories showing that role (from talent_role) and category (from title_principal) capture two different dimensions.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?roleName ?categoryName (COUNT(DISTINCT ?talent) AS ?talentCount)
+WHERE {
+  ?talent a ont:Talent ;
+          ont:participatesIn ?participation .
+  ?participation ont:plays ?role ;
+                 ont:as ?category .
+  ?role ont:roleName ?roleName .
+  ?category ont:categoryName ?categoryName .
+}
+GROUP BY ?roleName ?categoryName
+ORDER BY DESC(?talentCount)
+LIMIT 20`
+  },
+  {
+    tag: 'NT5', label: 'Genre × content type distribution',
+    purpose: 'Analyses which genres appear across which content types. Joins Genre ← Title → ContentType and collapses content types into a list per genre.',
+    sparql: `PREFIX ont: <${ONT}>
+SELECT ?genreName
+       (COUNT(DISTINCT ?title) AS ?titleCount)
+       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=", ") AS ?contentTypes)
+WHERE {
+  ?title a ont:Title ;
+         ont:hasGenre ?genre ;
+         ont:isClassifiedAs ?ct .
+  ?genre ont:genreName ?genreName .
+  ?ct ont:content_type_name ?contentTypeName .
+}
+GROUP BY ?genre ?genreName
+ORDER BY DESC(?titleCount)`
+  }
+];
+
+let store = null;
+
+function selectQuery(index) {
+  const q = QUERIES[index];
+  document.getElementById('queryEditor').value = q.sparql;
+  document.getElementById('queryPurpose').textContent = q.purpose;
+  document.querySelectorAll('.query-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
+  document.getElementById('resultsBody').innerHTML = '<div class="empty-state"><div class="icon">▶</div>Press Run Query to execute.</div>';
+  document.getElementById('resultsCount').textContent = '';
+}
+
+async function loadTTL() {
+  const file = document.getElementById('ttlFile').files[0];
+  if (!file) { alert('Please select a TTL file first.'); return; }
+
+  const btn = document.getElementById('loadBtn');
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+
+  try {
+    const text = await file.text();
+    const parser = new N3.Parser();
+    store = new N3.Store();
+    const quads = parser.parse(text);
+    store.addQuads(quads);
+
+    // Update status
+    document.getElementById('statusDot').className = 'status-dot loaded';
+    document.getElementById('statusText').textContent = `${store.size.toLocaleString()} triples loaded`;
+    document.getElementById('runBtn').disabled = false;
+
+    // Compute stats
+    const count = (cls) => store.getSubjects(
+      N3.DataFactory.namedNode(RDF + 'type'),
+      N3.DataFactory.namedNode(ONT + cls), null
+    ).length;
+
+    document.getElementById('statTitles').textContent = count('Title');
+    document.getElementById('statTalents').textContent = count('Talent');
+    document.getElementById('statParticipations').textContent = count('Participation');
+    document.getElementById('statGenres').textContent = count('Genre');
+    document.getElementById('statRegions').textContent = count('Region');
+    document.getElementById('statTriples').textContent = store.size.toLocaleString();
+    document.getElementById('statsBar').style.display = 'flex';
+
+    btn.textContent = '✓ Loaded';
+    btn.style.background = '#2a5a3a';
+
+  } catch(e) {
+    document.getElementById('statusDot').className = 'status-dot error';
+    document.getElementById('statusText').textContent = 'Error loading file';
+    btn.textContent = 'Load Data';
+    btn.disabled = false;
+    console.error(e);
+    alert('Error parsing TTL: ' + e.message);
+  }
+}
+
+function runQuery() {
+  if (!store) return;
+  const sparql = document.getElementById('queryEditor').value.trim();
+  if (!sparql) return;
+
+  document.getElementById('loadingSpinner').style.display = 'block';
+  document.getElementById('resultsBody').innerHTML = '';
+  document.getElementById('resultsCount').textContent = '';
+
+  setTimeout(() => {
+    try {
+      const results = executeSPARQL(sparql);
+      renderResults(results);
+    } catch(e) {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      document.getElementById('resultsBody').innerHTML =
+        `<div class="error-msg">⚠ Query error: ${e.message}</div>`;
+    }
+  }, 50);
+}
+
+function executeSPARQL(sparql) {
+  // Extract prefixes
+  const prefixMap = {};
+  const prefixRe = /PREFIX\s+(\w*):\s*<([^>]+)>/gi;
+  let m;
+  while ((m = prefixRe.exec(sparql)) !== null) {
+    prefixMap[m[1]] = m[2];
+  }
+
+  function expandURI(uri) {
+    if (uri.startsWith('<') && uri.endsWith('>')) return uri.slice(1,-1);
+    const colon = uri.indexOf(':');
+    if (colon > 0) {
+      const prefix = uri.slice(0, colon);
+      const local = uri.slice(colon+1);
+      if (prefixMap[prefix]) return prefixMap[prefix] + local;
+    }
+    return uri;
+  }
+
+  function shortURI(uri) {
+    for (const [p, ns] of Object.entries(prefixMap)) {
+      if (uri.startsWith(ns)) return (p ? p+':' : '') + uri.slice(ns.length);
+    }
+    const parts = uri.split(/[/#]/);
+    return parts[parts.length-1] || uri;
+  }
+
+  // Parse SELECT variables
+  const selectMatch = sparql.match(/SELECT\s+(DISTINCT\s+)?(.*?)\s+WHERE/is);
+  if (!selectMatch) throw new Error('Only SELECT queries are supported.');
+
+  const selectClause = selectMatch[2].trim();
+  let vars = [];
+  if (selectClause === '*') {
+    vars = null; // detect from results
+  } else {
+    // Extract variable names and expressions
+    const varRe = /\(([^)]+)\s+AS\s+(\?[\w]+)\)|(\?[\w]+)/g;
+    let vm;
+    while ((vm = varRe.exec(selectClause)) !== null) {
+      if (vm[2]) vars.push({ name: vm[2].slice(1), expr: vm[1] });
+      else if (vm[3]) vars.push({ name: vm[3].slice(1), expr: null });
+    }
+  }
+
+  // Extract WHERE clause
+  const whereMatch = sparql.match(/WHERE\s*\{([\s\S]*?)\}(?:\s*(?:GROUP|ORDER|HAVING|LIMIT|OFFSET|$))/i);
+  if (!whereMatch) throw new Error('Could not parse WHERE clause.');
+
+  const whereClause = whereMatch[1];
+
+  // Parse LIMIT
+  const limitMatch = sparql.match(/LIMIT\s+(\d+)/i);
+  const limit = limitMatch ? parseInt(limitMatch[1]) : 1000;
+
+  // Parse ORDER BY
+  const orderMatch = sparql.match(/ORDER BY\s+((?:ASC|DESC)?\s*\(?\?[\w]+\)?(?:\s+(?:ASC|DESC)?\s*\(?\?[\w]+\)?)*)/i);
+
+  // Parse GROUP BY
+  const groupMatch = sparql.match(/GROUP BY\s+((?:\?[\w]+\s*)+)/i);
+  const groupVars = groupMatch ? groupMatch[1].trim().split(/\s+/).map(v => v.slice(1)) : [];
+
+  // Parse HAVING
+  const havingMatch = sparql.match(/HAVING\s*\(([^)]+)\)/i);
+
+  // Execute basic triple pattern matching
+  const patterns = parsePatterns(whereClause, prefixMap);
+  let bindings = matchPatterns(patterns, store, prefixMap);
+
+  // Apply GROUP BY and aggregations
+  if (groupVars.length > 0 || hasAggregations(vars)) {
+    bindings = applyGroupBy(bindings, groupVars, vars, store, prefixMap);
+  }
+
+  // Apply HAVING
+  if (havingMatch) {
+    bindings = applyHaving(bindings, havingMatch[1]);
+  }
+
+  // Apply ORDER BY
+  if (orderMatch) {
+    bindings = applyOrderBy(bindings, orderMatch[1]);
+  }
+
+  // Apply LIMIT
+  bindings = bindings.slice(0, limit);
+
+  // Detect vars if *
+  if (!vars) {
+    const allVars = new Set();
+    bindings.forEach(b => Object.keys(b).forEach(k => allVars.add(k)));
+    vars = [...allVars].map(v => ({ name: v, expr: null }));
+  }
+
+  return { vars: vars.map(v => v.name), bindings, shortURI };
+}
+
+function hasAggregations(vars) {
+  if (!vars) return false;
+  return vars.some(v => v.expr && /COUNT|SUM|AVG|MIN|MAX|GROUP_CONCAT/i.test(v.expr));
+}
+
+function parsePatterns(whereClause, prefixMap) {
+  const patterns = [];
+
+  function expandURI(uri) {
+    uri = uri.trim();
+    if (uri.startsWith('<') && uri.endsWith('>')) return uri.slice(1,-1);
+    const colon = uri.indexOf(':');
+    if (colon > 0) {
+      const prefix = uri.slice(0, colon);
+      const local = uri.slice(colon+1);
+      if (prefixMap[prefix] !== undefined) return prefixMap[prefix] + local;
+    }
+    if (uri === 'a') return 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+    return uri;
+  }
+
+  // Handle OPTIONAL blocks
+  const optionalRe = /OPTIONAL\s*\{([^{}]*)\}/gi;
+  let om;
+  const optionalBlocks = [];
+  let clauseNOpt = whereClause;
+  while ((om = optionalRe.exec(whereClause)) !== null) {
+    optionalBlocks.push(om[1]);
+    clauseNOpt = clauseNOpt.replace(om[0], '');
+  }
+
+  function parseBlock(block, optional) {
+    // Split by '.' or ';' respecting structure
+    const triples = [];
+    // Tokenize subject ; pred obj pattern
+    const lines = block.split(/\.(?!\d)/).map(s => s.trim()).filter(s => s.length > 0);
+    for (const line of lines) {
+      const parts = line.split(';').map(s => s.trim());
+      let subject = null;
+      for (const part of parts) {
+        const tokens = tokenize(part);
+        if (tokens.length === 0) continue;
+        if (subject === null) {
+          if (tokens.length >= 3) {
+            subject = tokens[0];
+            triples.push({ s: expandURI(tokens[0]), p: expandURI(tokens[1]), o: tokens[2].startsWith('?') ? tokens[2] : expandURIorLiteral(tokens[2], prefixMap), optional });
+          }
+        } else {
+          if (tokens.length >= 2) {
+            triples.push({ s: expandURI(subject), p: expandURI(tokens[0]), o: tokens[1].startsWith('?') ? tokens[1] : expandURIorLiteral(tokens[1], prefixMap), optional });
+          }
+        }
+      }
+    }
+    return triples;
+  }
+
+  patterns.push(...parseBlock(clauseNOpt, false));
+  for (const ob of optionalBlocks) {
+    patterns.push(...parseBlock(ob, true));
+  }
+
+  return patterns;
+}
+
+function expandURIorLiteral(token, prefixMap) {
+  if (token.startsWith('"') || token.startsWith("'")) return token;
+  if (token.startsWith('<') && token.endsWith('>')) return token.slice(1,-1);
+  const colon = token.indexOf(':');
+  if (colon > 0) {
+    const prefix = token.slice(0, colon);
+    const local = token.slice(colon+1);
+    if (prefixMap[prefix] !== undefined) return prefixMap[prefix] + local;
+  }
+  if (token === 'a') return 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+  return token;
+}
+
+function tokenize(str) {
+  const tokens = [];
+  let i = 0;
+  while (i < str.length) {
+    if (str[i] === ' ' || str[i] === '\t' || str[i] === '\n') { i++; continue; }
+    if (str[i] === '<') {
+      const end = str.indexOf('>', i);
+      tokens.push(str.slice(i, end+1)); i = end+1;
+    } else if (str[i] === '"') {
+      const end = str.indexOf('"', i+1);
+      tokens.push(str.slice(i, end+1)); i = end+1;
+    } else {
+      let end = i;
+      while (end < str.length && str[end] !== ' ' && str[end] !== '\t' && str[end] !== '\n') end++;
+      tokens.push(str.slice(i, end)); i = end;
+    }
+  }
+  return tokens.filter(t => t.length > 0);
+}
+
+function termValue(term) {
+  if (!term) return null;
+  if (term.termType === 'NamedNode') return term.value;
+  if (term.termType === 'Literal') return term.value;
+  if (term.termType === 'BlankNode') return '_:' + term.value;
+  return term.value;
+}
+
+function matchPatterns(patterns, store, prefixMap) {
+  let bindings = [{}];
+
+  const required = patterns.filter(p => !p.optional);
+  const optional = patterns.filter(p => p.optional);
+
+  for (const pattern of required) {
+    const newBindings = [];
+    for (const binding of bindings) {
+      const s = resolveToken(pattern.s, binding);
+      const p = resolveToken(pattern.p, binding);
+      const o = resolveToken(pattern.o, binding);
+
+      const sNode = s ? N3.DataFactory.namedNode(s) : null;
+      const pNode = p ? N3.DataFactory.namedNode(p) : null;
+      const oNode = o ? makeNode(o) : null;
+
+      const quads = store.getQuads(sNode, pNode, oNode, null);
+      for (const quad of quads) {
+        const newBinding = { ...binding };
+        if (pattern.s.startsWith('?')) newBinding[pattern.s.slice(1)] = termValue(quad.subject);
+        if (pattern.p.startsWith('?')) newBinding[pattern.p.slice(1)] = termValue(quad.predicate);
+        if (pattern.o.startsWith('?')) newBinding[pattern.o.slice(1)] = termValue(quad.object);
+        newBindings.push(newBinding);
+      }
+    }
+    bindings = newBindings;
+    if (bindings.length === 0) break;
+  }
+
+  // Apply optional patterns
+  for (const pattern of optional) {
+    const newBindings = [];
+    for (const binding of bindings) {
+      const s = resolveToken(pattern.s, binding);
+      const p = resolveToken(pattern.p, binding);
+      const o = resolveToken(pattern.o, binding);
+
+      const sNode = s ? N3.DataFactory.namedNode(s) : null;
+      const pNode = p ? N3.DataFactory.namedNode(p) : null;
+      const oNode = o ? makeNode(o) : null;
+
+      const quads = store.getQuads(sNode, pNode, oNode, null);
+      if (quads.length === 0) {
+        newBindings.push(binding); // keep original, no extension
+      } else {
+        for (const quad of quads) {
+          const newBinding = { ...binding };
+          if (pattern.s.startsWith('?')) newBinding[pattern.s.slice(1)] = termValue(quad.subject);
+          if (pattern.p.startsWith('?')) newBinding[pattern.p.slice(1)] = termValue(quad.predicate);
+          if (pattern.o.startsWith('?')) newBinding[pattern.o.slice(1)] = termValue(quad.object);
+          newBindings.push(newBinding);
+        }
+      }
+    }
+    bindings = newBindings;
+  }
+
+  return bindings;
+}
+
+function makeNode(val) {
+  if (!val) return null;
+  if (val.startsWith('"')) return N3.DataFactory.literal(val.slice(1, val.lastIndexOf('"')));
+  return N3.DataFactory.namedNode(val);
+}
+
+function resolveToken(token, binding) {
+  if (!token) return null;
+  if (token.startsWith('?')) {
+    return binding[token.slice(1)] || null;
+  }
+  return token;
+}
+
+function applyGroupBy(bindings, groupVars, vars, store, prefixMap) {
+  const groups = new Map();
+
+  for (const binding of bindings) {
+    const key = groupVars.map(v => binding[v] || '').join('|');
+    if (!groups.has(key)) groups.set(key, { representative: binding, rows: [] });
+    groups.get(key).rows.push(binding);
+  }
+
+  const result = [];
+  for (const [, group] of groups) {
+    const newBinding = { ...group.representative };
+
+    if (vars) {
+      for (const v of vars) {
+        if (!v.expr) continue;
+        const expr = v.expr.trim();
+
+        // COUNT
+        const countMatch = expr.match(/COUNT\s*\(\s*(DISTINCT\s+)?(\?[\w]+|\*)\s*\)/i);
+        if (countMatch) {
+          const distinct = !!countMatch[1];
+          const varName = countMatch[2] === '*' ? null : countMatch[2].slice(1);
+          let vals = group.rows.map(r => varName ? r[varName] : JSON.stringify(r)).filter(x => x != null);
+          if (distinct) vals = [...new Set(vals)];
+          newBinding[v.name] = String(vals.length);
+          continue;
+        }
+
+        // GROUP_CONCAT
+        const gcMatch = expr.match(/GROUP_CONCAT\s*\(\s*(DISTINCT\s+)?(\?[\w]+)\s*(?:;\s*separator\s*=\s*"([^"]*)")?\s*\)/i);
+        if (gcMatch) {
+          const distinct = !!gcMatch[1];
+          const varName = gcMatch[2].slice(1);
+          const sep = gcMatch[3] !== undefined ? gcMatch[3] : ' ';
+          let vals = group.rows.map(r => r[varName]).filter(x => x != null);
+          if (distinct) vals = [...new Set(vals)];
+          newBinding[v.name] = vals.join(sep);
+          continue;
+        }
+      }
+    }
+    result.push(newBinding);
+  }
+  return result;
+}
+
+function applyHaving(bindings, havingExpr) {
+  return bindings.filter(binding => {
+    try {
+      const countMatch = havingExpr.match(/COUNT\s*\(\s*(DISTINCT\s+)?(\?[\w]+|\*)\s*\)\s*([><=!]+)\s*(\d+)/i);
+      if (countMatch) {
+        const varName = countMatch[2] === '*' ? null : countMatch[2].slice(1);
+        const op = countMatch[3];
+        const val = parseInt(countMatch[4]);
+        const count = parseInt(binding[varName] || '0');
+        if (op === '>') return count > val;
+        if (op === '>=') return count >= val;
+        if (op === '<') return count < val;
+        if (op === '<=') return count <= val;
+        if (op === '==' || op === '=') return count === val;
+        if (op === '!=') return count !== val;
+      }
+
+      // Direct variable comparison
+      const varMatch = havingExpr.match(/\(?\s*\?(\w+)\s*([><=!]+)\s*(\d+)\s*\)?/);
+      if (varMatch) {
+        const val = parseInt(binding[varMatch[1]] || '0');
+        const op = varMatch[2];
+        const threshold = parseInt(varMatch[3]);
+        if (op === '>') return val > threshold;
+        if (op === '>=') return val >= threshold;
+        if (op === '<') return val < threshold;
+        if (op === '<=') return val <= threshold;
+        if (op === '==' || op === '=') return val === threshold;
+      }
+      return true;
+    } catch(e) { return true; }
+  });
+}
+
+function applyOrderBy(bindings, orderClause) {
+  const parts = orderClause.trim().split(/\s+/);
+  let varName = parts[parts.length-1].replace(/[()]/g,'').replace('?','');
+  let desc = orderClause.toUpperCase().includes('DESC');
+
+  return [...bindings].sort((a, b) => {
+    const va = a[varName] || '';
+    const vb = b[varName] || '';
+    const na = parseFloat(va);
+    const nb = parseFloat(vb);
+    let cmp;
+    if (!isNaN(na) && !isNaN(nb)) cmp = na - nb;
+    else cmp = va.localeCompare(vb);
+    return desc ? -cmp : cmp;
+  });
+}
+
+function renderResults({ vars, bindings, shortURI }) {
+  document.getElementById('loadingSpinner').style.display = 'none';
+  document.getElementById('resultsCount').textContent = `${bindings.length} row${bindings.length !== 1 ? 's' : ''}`;
+
+  if (bindings.length === 0) {
+    document.getElementById('resultsBody').innerHTML =
+      '<div class="empty-state"><div class="icon">∅</div>No results returned.</div>';
+    return;
+  }
+
+  let html = '<table><thead><tr>';
+  for (const v of vars) html += `<th>${v}</th>`;
+  html += '</tr></thead><tbody>';
+
+  for (const row of bindings) {
+    html += '<tr>';
+    for (const v of vars) {
+      const val = row[v] != null ? row[v] : '';
+      const isURI = val.startsWith('http://') || val.startsWith('https://');
+      const isNum = !isNaN(parseFloat(val)) && val.trim() !== '';
+      const display = isURI ? shortURI(val) : val;
+      const cls = isURI ? 'uri' : isNum ? 'number' : '';
+      html += `<td class="${cls}" title="${val}">${display}</td>`;
+    }
+    html += '</tr>';
+  }
+
+  html += '</tbody></table>';
+  document.getElementById('resultsBody').innerHTML = html;
+}
+
+// Allow running query with Ctrl+Enter
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('queryEditor').addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'Enter') runQuery();
+  });
+});
+</script>
+</body>
+</html>

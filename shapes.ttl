@@ -1,0 +1,269 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ont:  <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#> .
+@prefix shape: <http://www.semanticweb.org/antoi/shapes/> .
+
+# =================================================================
+# 1. TITLE
+# =================================================================
+
+shape:TitleShape a sh:NodeShape ;
+    sh:targetClass ont:Title ;
+    sh:name "TitleShape" ;
+    sh:description "Every Title must have a primaryTitle and be classified as a ContentType." ;
+
+    # primaryTitle is mandatory and must be a string
+    sh:property [
+        sh:path ont:primaryTitle ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "primaryTitle" ;
+        sh:message "A Title must have exactly one primaryTitle of type xsd:string."
+    ] ;
+
+    # isClassifiedAs is mandatory and must point to a ContentType
+    sh:property [
+        sh:path ont:isClassifiedAs ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class ont:ContentType ;
+        sh:name "isClassifiedAs" ;
+        sh:message "A Title must be classified as exactly one ContentType."
+    ] ;
+
+    # contains is optional but must point to a Participation
+    sh:property [
+        sh:path ont:contains ;
+        sh:class ont:Participation ;
+        sh:name "contains" ;
+        sh:message "The contains property must point to a Participation individual."
+    ] ;
+
+    # hasGenre is optional but must point to a Genre
+    sh:property [
+        sh:path ont:hasGenre ;
+        sh:class ont:Genre ;
+        sh:name "hasGenre" ;
+        sh:message "The hasGenre property must point to a Genre individual."
+    ] ;
+
+    # isAka is optional but must point to an AlternativeTitle
+    sh:property [
+        sh:path ont:isAka ;
+        sh:class ont:AlternativeTitle ;
+        sh:name "isAka" ;
+        sh:message "The isAka property must point to an AlternativeTitle individual."
+    ] ;
+
+    # startYear is optional but must be a string
+    sh:property [
+        sh:path ont:startYear ;
+        sh:datatype xsd:string ;
+        sh:name "startYear" ;
+        sh:message "startYear must be of type xsd:string."
+    ] .
+
+# =================================================================
+# 2. TALENT
+# =================================================================
+
+shape:TalentShape a sh:NodeShape ;
+    sh:targetClass ont:Talent ;
+    sh:name "TalentShape" ;
+    sh:description "Every Talent must have a talentName." ;
+
+    # talentName is mandatory and must be a string
+    sh:property [
+        sh:path ont:talentName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "talentName" ;
+        sh:message "A Talent must have exactly one talentName of type xsd:string."
+    ] ;
+
+    # participatesIn is optional but must point to a Participation
+    sh:property [
+        sh:path ont:participatesIn ;
+        sh:class ont:Participation ;
+        sh:name "participatesIn" ;
+        sh:message "The participatesIn property must point to a Participation individual."
+    ] .
+
+# =================================================================
+# 3. PARTICIPATION
+# =================================================================
+
+shape:ParticipationShape a sh:NodeShape ;
+    sh:targetClass ont:Participation ;
+    sh:name "ParticipationShape" ;
+    sh:description "Every Participation must link to at least one Category via ont:as." ;
+
+    # as is mandatory and must point to a Category
+    sh:property [
+        sh:path ont:as ;
+        sh:minCount 1 ;
+        sh:class ont:Category ;
+        sh:name "as" ;
+        sh:message "A Participation must have at least one ont:as pointing to a Category."
+    ] ;
+
+    # plays is optional but must point to a Role
+    sh:property [
+        sh:path ont:plays ;
+        sh:class ont:Role ;
+        sh:name "plays" ;
+        sh:message "The plays property must point to a Role individual."
+    ] ;
+
+    # job is optional but must be a string
+    sh:property [
+        sh:path ont:job ;
+        sh:datatype xsd:string ;
+        sh:name "job" ;
+        sh:message "The job property must be of type xsd:string."
+    ] .
+
+# =================================================================
+# 4. ALTERNATIVE TITLE
+# =================================================================
+
+shape:AlternativeTitleShape a sh:NodeShape ;
+    sh:targetClass ont:AlternativeTitle ;
+    sh:name "AlternativeTitleShape" ;
+    sh:description "Every AlternativeTitle must have a name." ;
+
+    # alternativeTitleName is mandatory and must be a string
+    sh:property [
+        sh:path ont:alternativeTitleName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "alternativeTitleName" ;
+        sh:message "An AlternativeTitle must have exactly one alternativeTitleName of type xsd:string."
+    ] ;
+
+    # isFrom is optional but must point to a Region
+    sh:property [
+        sh:path ont:isFrom ;
+        sh:class ont:Region ;
+        sh:name "isFrom" ;
+        sh:message "The isFrom property must point to a Region individual."
+    ] ;
+
+    # hasType is optional but must point to a TitleType
+    sh:property [
+        sh:path ont:hasType ;
+        sh:class ont:TitleType ;
+        sh:name "hasType" ;
+        sh:message "The hasType property must point to a TitleType individual."
+    ] .
+
+# =================================================================
+# 5. CATEGORY
+# =================================================================
+
+shape:CategoryShape a sh:NodeShape ;
+    sh:targetClass ont:Category ;
+    sh:name "CategoryShape" ;
+    sh:description "Every Category must have a categoryName." ;
+
+    sh:property [
+        sh:path ont:categoryName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "categoryName" ;
+        sh:message "A Category must have exactly one categoryName of type xsd:string."
+    ] .
+
+# =================================================================
+# 6. ROLE
+# =================================================================
+
+shape:RoleShape a sh:NodeShape ;
+    sh:targetClass ont:Role ;
+    sh:name "RoleShape" ;
+    sh:description "Every Role must have a roleName." ;
+
+    sh:property [
+        sh:path ont:roleName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "roleName" ;
+        sh:message "A Role must have exactly one roleName of type xsd:string."
+    ] .
+
+# =================================================================
+# 7. GENRE
+# =================================================================
+
+shape:GenreShape a sh:NodeShape ;
+    sh:targetClass ont:Genre ;
+    sh:name "GenreShape" ;
+    sh:description "Every Genre must have a genreName." ;
+
+    sh:property [
+        sh:path ont:genreName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "genreName" ;
+        sh:message "A Genre must have exactly one genreName of type xsd:string."
+    ] .
+
+# =================================================================
+# 8. CONTENT TYPE
+# =================================================================
+
+shape:ContentTypeShape a sh:NodeShape ;
+    sh:targetClass ont:ContentType ;
+    sh:name "ContentTypeShape" ;
+    sh:description "Every ContentType must have a content_type_name." ;
+
+    sh:property [
+        sh:path ont:content_type_name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "content_type_name" ;
+        sh:message "A ContentType must have exactly one content_type_name of type xsd:string."
+    ] .
+
+# =================================================================
+# 9. REGION
+# =================================================================
+
+shape:RegionShape a sh:NodeShape ;
+    sh:targetClass ont:Region ;
+    sh:name "RegionShape" ;
+    sh:description "Every Region must have a regionName." ;
+
+    sh:property [
+        sh:path ont:regionName ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "regionName" ;
+        sh:message "A Region must have at least one regionName of type xsd:string."
+    ] .
+
+# =================================================================
+# 10. TITLE TYPE
+# =================================================================
+
+shape:TitleTypeShape a sh:NodeShape ;
+    sh:targetClass ont:TitleType ;
+    sh:name "TitleTypeShape" ;
+    sh:description "Every TitleType must have a title_type_name." ;
+
+    sh:property [
+        sh:path ont:title_type_name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:name "title_type_name" ;
+        sh:message "A TitleType must have exactly one title_type_name of type xsd:string."
+    ] .

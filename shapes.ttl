@@ -1,8 +1,8 @@
 @prefix sh:   <http://www.w3.org/ns/shacl#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ont:  <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#> .
-@prefix shape: <http://www.semanticweb.org/antoi/shapes/> .
+@prefix ont:  <https://khalilankri.github.io/audiovisual-ontology/1.0#> .
+@prefix shape: <https://khalilankri.github.io/audiovisual-ontology/shapes/> .
 
 # =================================================================
 # 1. TITLE

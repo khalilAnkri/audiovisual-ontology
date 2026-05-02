@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SPARQL Demonstrator</title>
+<title>SPARQL Demonstrator - Audiovisual Ontology</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -22,6 +22,30 @@
   }
   h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 2px; }
   p.sub { color: #999; font-size: 0.78rem; margin: 0; letter-spacing: 0.02em; }
+  .namespace-banner {
+    background: #e8f4f8;
+    border-left: 4px solid #3498db;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+  }
+  .namespace-banner strong {
+    color: #2c3e50;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .namespace-banner code {
+    display: block;
+    margin-top: 6px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    color: #1a1a1a;
+    background: #fff;
+    padding: 8px 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
   label {
     font-size: 0.72rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.07em;
@@ -71,6 +95,11 @@
 <div class="card">
   <h1>AudiovisualOntology — SPARQL Demonstrator</h1>
   <p class="sub">ANKRI Mohamed-Khalil &nbsp;·&nbsp; MICHON Charlotte &nbsp;·&nbsp; PAULIS Antoine</p>
+  
+  <div class="namespace-banner">
+    <strong>Ontology Namespace URI (Corrected):</strong>
+    <code>https://khalilankri.github.io/audiovisual-ontology/1.0#</code>
+  </div>
 </div>
 
 <div class="card">
@@ -107,7 +136,9 @@
 </div>
 
 <script>
-const ONT = 'http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#';
+
+const ONT = 'https://khalilankri.github.io/audiovisual-ontology/1.0#';
+
 const Q = {
   s1:`PREFIX ont: <${ONT}>
 SELECT ?titleName ?startYear

@@ -13,7 +13,6 @@
     <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
     <Prefix name="obda" IRI="https://w3id.org/obda/vocabulary#"/>
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
-    <Import>file:/C:/Users/ANKRI/Desktop/Q2/KRR/Project/M3-r2rml/out.ttl</Import>
     <Annotation>
         <AnnotationProperty IRI="http://purl.org/dc/elements/1.1/creator"/>
         <Literal xml:lang="en">ANKRI Mohamed-Khalil</Literal>

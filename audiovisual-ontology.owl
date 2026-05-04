@@ -167,9 +167,16 @@
         <AnnotationProperty IRI="http://purl.org/dc/terms/license"/>
     </Declaration>
     <DisjointClasses>
+        <Class IRI="#AlternativeTitle"/>
+        <Class IRI="#Category"/>
+        <Class IRI="#ContentType"/>
+        <Class IRI="#Genre"/>
         <Class IRI="#Participation"/>
+        <Class IRI="#Region"/>
+        <Class IRI="#Role"/>
         <Class IRI="#Talent"/>
         <Class IRI="#Title"/>
+        <Class IRI="#TitleType"/>
     </DisjointClasses>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#as"/>

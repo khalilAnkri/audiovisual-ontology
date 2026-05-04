@@ -8,7 +8,7 @@
   {
     "kind": 2,
     "language": "sparql",
-    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\nSELECT ?titleName ?contentTypeName \r\n       (COUNT(DISTINCT ?talent) AS ?talentCount)\r\n       (GROUP_CONCAT(DISTINCT ?genreName ; separator=\", \") AS ?genres)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isClassifiedAs ?ct ;\r\n           ont:contains ?participation .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n    ?talent ont:participatesIn ?participation .\r\n    OPTIONAL {\r\n        ?title ont:hasGenre ?genre .\r\n        ?genre ont:genreName ?genreName .\r\n    }\r\n}\r\nGROUP BY ?title ?titleName ?contentTypeName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 5",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\nSELECT ?titleName ?contentTypeName \r\n       (COUNT(DISTINCT ?talent) AS ?talentCount)\r\n       (GROUP_CONCAT(DISTINCT ?genreName ; separator=\", \") AS ?genres)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isClassifiedAs ?ct ;\r\n           ont:contains ?participation .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n    ?talent ont:participatesIn ?participation .\r\n    OPTIONAL {\r\n        ?title ont:hasGenre ?genre .\r\n        ?genre ont:genreName ?genreName .\r\n    }\r\n}\r\nGROUP BY ?title ?titleName ?contentTypeName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 5",
     "metadata": {}
   },
   {
@@ -20,7 +20,7 @@
   {
     "kind": 2,
     "language": "sparql",
-    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?talentName\r\n       (COUNT(?roleName) AS ?roleCount)\r\n       (GROUP_CONCAT(?roleName ; separator=\", \") AS ?roles)\r\nWHERE {\r\n    ?talent ont:participatesIn ?participation ;\r\n            ont:talentName ?talentName .\r\n    ?participation ont:plays ?role .\r\n    ?role ont:roleName ?roleName .\r\n}\r\nGROUP BY ?talent ?talentName\r\nHAVING (COUNT(?roleName) > 2)\r\nORDER BY DESC(?roleCount)\r\nLIMIT 10",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?talentName\r\n       (COUNT(?roleName) AS ?roleCount)\r\n       (GROUP_CONCAT(?roleName ; separator=\", \") AS ?roles)\r\nWHERE {\r\n    ?talent ont:participatesIn ?participation ;\r\n            ont:talentName ?talentName .\r\n    ?participation ont:plays ?role .\r\n    ?role ont:roleName ?roleName .\r\n}\r\nGROUP BY ?talent ?talentName\r\nHAVING (COUNT(?roleName) > 2)\r\nORDER BY DESC(?roleCount)\r\nLIMIT 10",
     "metadata": {}
   },
   {
@@ -32,7 +32,13 @@
   {
     "kind": 2,
     "language": "sparql",
-    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?titleName ?akaName ?regionName ?titleTypeName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isAka ?aka .\r\n    ?aka ont:alternativeTitleName ?akaName ;\r\n         ont:isFrom ?region .\r\n    ?region ont:regionName ?regionName .\r\n    OPTIONAL {\r\n        ?aka ont:hasType ?tt .\r\n        ?tt ont:title_type_name ?titleTypeName .\r\n    }\r\n}\r\nORDER BY ?titleName\r\nLIMIT 10",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?titleName ?akaName ?regionName ?titleTypeName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isAka ?aka .\r\n    ?aka ont:alternativeTitleName ?akaName ;\r\n         ont:isFrom ?region .\r\n    ?region ont:regionName ?regionName .\r\n    OPTIONAL {\r\n        ?aka ont:hasType ?tt .\r\n        ?tt ont:title_type_name ?titleTypeName .\r\n    }\r\n}\r\nORDER BY ?titleName\r\nLIMIT 10",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\r\n\r\nSELECT ?titleName ?akaTitle ?regionName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isAka ?altTitle .\r\n    \r\n    ?altTitle ont:alternativeTitleName ?akaTitle .\r\n    \r\n    OPTIONAL {\r\n        ?altTitle ont:isFrom ?region .\r\n        ?region rdfs:label ?regionName .\r\n    }\r\n    \r\n    FILTER(?titleName = \"Les Misérables\")  \r\n}",
     "metadata": {}
   },
   {
@@ -44,7 +50,7 @@
   {
     "kind": 2,
     "language": "sparql",
-    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?roleName ?categoryName (COUNT(DISTINCT ?talent) AS ?talentCount)\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:participatesIn ?participation .\r\n    ?participation ont:plays ?role ;\r\n                   ont:as ?category .\r\n    ?role ont:roleName ?roleName .\r\n    ?category ont:categoryName ?categoryName .\r\n}\r\nGROUP BY ?roleName ?categoryName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 10",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?roleName ?categoryName (COUNT(DISTINCT ?talent) AS ?talentCount)\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:participatesIn ?participation .\r\n    ?participation ont:plays ?role ;\r\n                   ont:as ?category .\r\n    ?role ont:roleName ?roleName .\r\n    ?category ont:categoryName ?categoryName .\r\n}\r\nGROUP BY ?roleName ?categoryName\r\nORDER BY DESC(?talentCount)\r\nLIMIT 10",
     "metadata": {}
   },
   {
@@ -56,7 +62,7 @@
   {
     "kind": 2,
     "language": "sparql",
-    "value": "PREFIX ont: <http://www.semanticweb.org/antoi/ontologies/2026/2/audiovisual-ontology#>\r\n\r\nSELECT ?genreName \r\n       (COUNT(DISTINCT ?title) AS ?titleCount)\r\n       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=\", \") AS ?contentTypes)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:hasGenre ?genre ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?genre ont:genreName ?genreName .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n}\r\nGROUP BY ?genre ?genreName\r\nORDER BY DESC(?titleCount)\r\nLiMIT 10",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?genreName \r\n       (COUNT(DISTINCT ?title) AS ?titleCount)\r\n       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=\", \") AS ?contentTypes)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:hasGenre ?genre ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?genre ont:genreName ?genreName .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n}\r\nGROUP BY ?genre ?genreName\r\nORDER BY DESC(?titleCount)\r\nLiMIT 10",
     "metadata": {}
   }
 ]

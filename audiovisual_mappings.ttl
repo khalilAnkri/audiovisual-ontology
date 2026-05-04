@@ -9,11 +9,17 @@
 # =================================================================
 
 <#MapCategory> a rr:TriplesMap;
+
+#1. Logical Table (SQL Source)
     rr:logicalTable [ rr:tableName "category" ];
+
+#2. Subject Map (IRI + Type)
     rr:subjectMap [
         rr:template "https://khalilankri.github.io/audiovisual-ontology/data/category/{category_id}";
         rr:class ont:Category
     ];
+
+#3. Predicate-Object Maps (Properties)
     rr:predicateObjectMap [
         rr:predicate ont:categoryName;        
         rr:objectMap [ rr:column "category_name" ]
@@ -115,6 +121,8 @@
         rr:template "https://khalilankri.github.io/audiovisual-ontology/data/title/{title_id}";
         rr:class ont:Title
     ];
+
+# Data Properties
     rr:predicateObjectMap [
         rr:predicate ont:primaryTitle;        
         rr:objectMap [ rr:column "primary_title" ]
@@ -123,6 +131,8 @@
         rr:predicate ont:startYear;          
         rr:objectMap [ rr:column "start_year"; rr:datatype xsd:string ]
     ];
+
+# Object Property: Classification
     rr:predicateObjectMap [
         rr:predicate ont:isClassifiedAs;      
         rr:objectMap [
@@ -144,6 +154,8 @@
             rr:joinCondition [ rr:child "title_id"; rr:parent "title_id" ]
         ]
     ];
+    
+# Human-readable label
     rr:predicateObjectMap [
         rr:predicate rdfs:label;
         rr:objectMap [ rr:column "primary_title" ]
@@ -151,14 +163,20 @@
 
 <#MapTalent> a rr:TriplesMap;
     rr:logicalTable [ rr:tableName "talent" ];
+
+
     rr:subjectMap [
         rr:template "https://khalilankri.github.io/audiovisual-ontology/data/talent/{talent_id}";
         rr:class ont:Talent
     ];
+
+
     rr:predicateObjectMap [
         rr:predicate ont:talentName;          
         rr:objectMap [ rr:column "talent_name" ]
     ];
+
+
     rr:predicateObjectMap [
         rr:predicate ont:participatesIn;      
         rr:objectMap [
@@ -166,6 +184,7 @@
             rr:joinCondition [ rr:child "talent_id"; rr:parent "talent_id" ]
         ]
     ];
+
     rr:predicateObjectMap [
         rr:predicate rdfs:label;
         rr:objectMap [ rr:column "talent_name" ]
@@ -177,10 +196,14 @@
 
 <#MapParticipation> a rr:TriplesMap;
     rr:logicalTable [ rr:tableName "title_principal" ];
+
+    # Composite IRI from 3 columns 
     rr:subjectMap [
         rr:template "https://khalilankri.github.io/audiovisual-ontology/data/participation/{title_id}_{talent_id}_{ord}";
         rr:class ont:Participation
     ];
+
+     # Category of participation (e.g., actor, director)
     rr:predicateObjectMap [
         rr:predicate ont:as;                  
         rr:objectMap [
@@ -188,6 +211,8 @@
             rr:joinCondition [ rr:child "category_id"; rr:parent "category_id" ]
         ]
     ];
+
+    # Job description
     rr:predicateObjectMap [
         rr:predicate ont:job;                 
         rr:objectMap [ rr:column "job" ]

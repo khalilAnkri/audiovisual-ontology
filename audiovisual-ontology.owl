@@ -172,10 +172,6 @@
         <Class IRI="#Category"/>
         <Class IRI="#ContentType"/>
         <Class IRI="#Genre"/>
-        <Class IRI="#AlternativeTitle"/>
-        <Class IRI="#Category"/>
-        <Class IRI="#ContentType"/>
-        <Class IRI="#Genre"/>
         <Class IRI="#Participation"/>
         <Class IRI="#Region"/>
         <Class IRI="#Role"/>

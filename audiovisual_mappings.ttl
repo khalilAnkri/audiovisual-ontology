@@ -104,13 +104,6 @@
         rr:objectMap [ rr:column "region_name" ]
     ] .
 
-<#MapLanguage> a rr:TriplesMap;
-    rr:logicalTable [ rr:tableName "language" ];
-    rr:subjectMap [
-        rr:template "https://khalilankri.github.io/audiovisual-ontology/data/language/{language_id}";
-        rr:class ont:Language
-    ] .
-
 # =================================================================
 # 2. CORE ENTITIES
 # =================================================================
@@ -124,12 +117,24 @@
 
 # Data Properties
     rr:predicateObjectMap [
-        rr:predicate ont:primaryTitle;        
+        rr:predicate ont:primaryTitle;
         rr:objectMap [ rr:column "primary_title" ]
     ];
     rr:predicateObjectMap [
-        rr:predicate ont:startYear;          
+        rr:predicate ont:originalTitle;
+        rr:objectMap [ rr:column "original_title" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:startYear;
         rr:objectMap [ rr:column "start_year" ; rr:datatype xsd:integer ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:endYear;
+        rr:objectMap [ rr:column "end_year" ; rr:datatype xsd:integer ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:runtimeMinutes;
+        rr:objectMap [ rr:column "runtime_minutes" ; rr:datatype xsd:integer ]
     ];
 
 # Object Property: Classification
@@ -164,21 +169,28 @@
 <#MapTalent> a rr:TriplesMap;
     rr:logicalTable [ rr:tableName "talent" ];
 
-
     rr:subjectMap [
         rr:template "https://khalilankri.github.io/audiovisual-ontology/data/talent/{talent_id}";
         rr:class ont:Talent
     ];
 
-
     rr:predicateObjectMap [
-        rr:predicate ont:talentName;          
+        rr:predicate ont:talentName;
         rr:objectMap [ rr:column "talent_name" ]
     ];
 
+    rr:predicateObjectMap [
+        rr:predicate ont:birthYear;
+        rr:objectMap [ rr:column "birth_year" ; rr:datatype xsd:integer ]
+    ];
 
     rr:predicateObjectMap [
-        rr:predicate ont:participatesIn;      
+        rr:predicate ont:deathYear;
+        rr:objectMap [ rr:column "death_year" ; rr:datatype xsd:integer ]
+    ];
+
+    rr:predicateObjectMap [
+        rr:predicate ont:participatesIn;
         rr:objectMap [
             rr:parentTriplesMap <#MapParticipation>;
             rr:joinCondition [ rr:child "talent_id"; rr:parent "talent_id" ]

@@ -1,0 +1,1 @@
+fuseki runnig command:  java -jar fuseki-server.jar --mem /audiovisual

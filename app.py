@@ -5,8 +5,8 @@ import os
 app = Flask(__name__)
 
 
-FUSEKI_ENDPOINT = "http://localhost:3030/audiovisual/sparql"
-FUSEKI_UPDATE = "http://localhost:3030/audiovisual/update"
+FUSEKI_ENDPOINT = "http://localhost:3030/audiovisualDB/sparql"
+FUSEKI_UPDATE = "http://localhost:3030/audiovisualDB/update"
 
 
 try:

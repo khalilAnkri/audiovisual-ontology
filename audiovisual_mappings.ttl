@@ -129,7 +129,7 @@
     ];
     rr:predicateObjectMap [
         rr:predicate ont:startYear;          
-        rr:objectMap [ rr:column "start_year"; rr:datatype xsd:string ]
+        rr:objectMap [ rr:column "start_year" ; rr:datatype xsd:integer ]
     ];
 
 # Object Property: Classification
@@ -195,7 +195,11 @@
 # =================================================================
 
 <#MapParticipation> a rr:TriplesMap;
-    rr:logicalTable [ rr:tableName "title_principal" ];
+    rr:logicalTable [ rr:sqlQuery """
+        SELECT tp.title_id, tp.talent_id, tp.ord, tp.category_id, tp.job
+        FROM title_principal tp
+        INNER JOIN talent t ON tp.talent_id = t.talent_id
+    """ ];
 
     # Composite IRI from 3 columns 
     rr:subjectMap [

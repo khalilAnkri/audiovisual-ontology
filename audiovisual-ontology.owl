@@ -13,7 +13,7 @@
     <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
     <Prefix name="obda" IRI="https://w3id.org/obda/vocabulary#"/>
     <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
-    <Import>file:/C:/Users/ANKRI/Desktop/Q2/KRR/Project/M3-r2rml/out.ttl</Import>
+    
     <Annotation>
         <AnnotationProperty IRI="http://purl.org/dc/elements/1.1/creator"/>
         <Literal xml:lang="en">ANKRI Mohamed-Khalil</Literal>
@@ -168,9 +168,16 @@
         <AnnotationProperty IRI="http://purl.org/dc/terms/license"/>
     </Declaration>
     <DisjointClasses>
+        <Class IRI="#AlternativeTitle"/>
+        <Class IRI="#Category"/>
+        <Class IRI="#ContentType"/>
+        <Class IRI="#Genre"/>
         <Class IRI="#Participation"/>
+        <Class IRI="#Region"/>
+        <Class IRI="#Role"/>
         <Class IRI="#Talent"/>
         <Class IRI="#Title"/>
+        <Class IRI="#TitleType"/>
     </DisjointClasses>
     <SubObjectPropertyOf>
         <ObjectProperty IRI="#as"/>
@@ -462,7 +469,7 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#birthYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#categoryName"/>
@@ -474,11 +481,11 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#deathYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#endYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#genreName"/>
@@ -522,7 +529,7 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#startYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#talentName"/>

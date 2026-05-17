@@ -1,29 +1,347 @@
-@prefix sh:   <http://www.w3.org/ns/shacl#> .
-@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix ont:  <https://khalilankri.github.io/audiovisual-ontology/1.0#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix ont:   <https://khalilankri.github.io/audiovisual-ontology/1.0#> .
 @prefix shape: <https://khalilankri.github.io/audiovisual-ontology/shapes/> .
 
+
 # =================================================================
-# 1. TITLE
+# SECTION A — CLASS DISJOINTNESS
+# No individual may belong to two distinct domain classes at once.
+# Mirrors the OWL DisjointClasses axiom at the validation level,
+# independently of any reasoner.
 # =================================================================
 
+shape:TitleDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Title ;
+    sh:name "TitleDisjointShape" ;
+    sh:description "A Title must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:TalentDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Talent ;
+    sh:name "TalentDisjointShape" ;
+    sh:description "A Talent must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:ParticipationDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Participation ;
+    sh:name "ParticipationDisjointShape" ;
+    sh:description "A Participation must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:GenreDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Genre ;
+    sh:name "GenreDisjointShape" ;
+    sh:description "A Genre must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:ContentTypeDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:ContentType ;
+    sh:name "ContentTypeDisjointShape" ;
+    sh:description "A ContentType must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:AlternativeTitleDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:AlternativeTitle ;
+    sh:name "AlternativeTitleDisjointShape" ;
+    sh:description "An AlternativeTitle must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:CategoryDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Category ;
+    sh:name "CategoryDisjointShape" ;
+    sh:description "A Category must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:RoleDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Role ;
+    sh:name "RoleDisjointShape" ;
+    sh:description "A Role must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Region ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:RegionDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:Region ;
+    sh:name "RegionDisjointShape" ;
+    sh:description "A Region must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:TitleType ] .
+
+shape:TitleTypeDisjointShape a sh:NodeShape ;
+    sh:targetClass ont:TitleType ;
+    sh:name "TitleTypeDisjointShape" ;
+    sh:description "A TitleType must not simultaneously belong to any other domain class." ;
+    sh:not [ sh:class ont:Title ] ;
+    sh:not [ sh:class ont:Talent ] ;
+    sh:not [ sh:class ont:Participation ] ;
+    sh:not [ sh:class ont:Genre ] ;
+    sh:not [ sh:class ont:ContentType ] ;
+    sh:not [ sh:class ont:AlternativeTitle ] ;
+    sh:not [ sh:class ont:Category ] ;
+    sh:not [ sh:class ont:Role ] ;
+    sh:not [ sh:class ont:Region ] .
+
+
+# =================================================================
+# SECTION B — DOMAIN VALIDATION (SPARQL-based property shapes)
+# Each shape targets every triple using the given property and
+# checks that its SUBJECT is of the declared domain class.
+# =================================================================
+
+# --- ont:primaryTitle domain: Title only ---
+shape:DomainPrimaryTitleShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:primaryTitle ;
+    sh:name "DomainPrimaryTitleShape" ;
+    sh:description "ont:primaryTitle may only appear on ont:Title individuals." ;
+    sh:class ont:Title ;
+    sh:message "ont:primaryTitle used on a non-Title subject. Only ont:Title individuals may have this property." .
+
+# --- ont:startYear domain: Title only ---
+shape:DomainStartYearShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:startYear ;
+    sh:name "DomainStartYearShape" ;
+    sh:description "ont:startYear may only appear on ont:Title individuals." ;
+    sh:class ont:Title ;
+    sh:message "ont:startYear used on a non-Title subject." .
+
+# --- ont:isClassifiedAs domain: Title only ---
+shape:DomainIsClassifiedAsShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:isClassifiedAs ;
+    sh:name "DomainIsClassifiedAsShape" ;
+    sh:description "ont:isClassifiedAs may only be used by ont:Title individuals." ;
+    sh:class ont:Title ;
+    sh:message "ont:isClassifiedAs used on a non-Title subject. Domain is ont:Title." .
+
+# --- ont:contains domain: Title only ---
+shape:DomainContainsShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:contains ;
+    sh:name "DomainContainsShape" ;
+    sh:description "ont:contains may only be used by ont:Title individuals." ;
+    sh:class ont:Title ;
+    sh:message "ont:contains used on a non-Title subject. Domain is ont:Title." .
+
+# --- ont:hasGenre domain: Title only ---
+shape:DomainHasGenreShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:hasGenre ;
+    sh:name "DomainHasGenreShape" ;
+    sh:description "ont:hasGenre may only be used by ont:Title individuals." ;
+    sh:class ont:Title ;
+    sh:message "ont:hasGenre used on a non-Title subject. Domain is ont:Title." .
+
+# --- ont:isAka domain: Title only ---
+shape:DomainIsAkaShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:isAka ;
+    sh:name "DomainIsAkaShape" ;
+    sh:description "ont:isAka may only be used by ont:Title individuals." ;
+    sh:class ont:Title ;
+    sh:message "ont:isAka used on a non-Title subject. Domain is ont:Title." .
+
+# --- ont:talentName domain: Talent only ---
+shape:DomainTalentNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:talentName ;
+    sh:name "DomainTalentNameShape" ;
+    sh:description "ont:talentName may only appear on ont:Talent individuals." ;
+    sh:class ont:Talent ;
+    sh:message "ont:talentName used on a non-Talent subject." .
+
+# --- ont:participatesIn domain: Talent only ---
+shape:DomainParticipatesInShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:participatesIn ;
+    sh:name "DomainParticipatesInShape" ;
+    sh:description "ont:participatesIn may only be used by ont:Talent individuals." ;
+    sh:class ont:Talent ;
+    sh:message "ont:participatesIn used on a non-Talent subject. Domain is ont:Talent." .
+
+# --- ont:as domain: Participation only ---
+shape:DomainAsShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:as ;
+    sh:name "DomainAsShape" ;
+    sh:description "ont:as may only be used by ont:Participation individuals." ;
+    sh:class ont:Participation ;
+    sh:message "ont:as used on a non-Participation subject. Domain is ont:Participation." .
+
+# --- ont:plays domain: Participation only ---
+shape:DomainPlaysShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:plays ;
+    sh:name "DomainPlaysShape" ;
+    sh:description "ont:plays may only be used by ont:Participation individuals." ;
+    sh:class ont:Participation ;
+    sh:message "ont:plays used on a non-Participation subject. Domain is ont:Participation." .
+
+# --- ont:job domain: Participation only ---
+shape:DomainJobShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:job ;
+    sh:name "DomainJobShape" ;
+    sh:description "ont:job may only be used by ont:Participation individuals." ;
+    sh:class ont:Participation ;
+    sh:message "ont:job used on a non-Participation subject. Domain is ont:Participation." .
+
+# --- ont:alternativeTitleName domain: AlternativeTitle only ---
+shape:DomainAlternativeTitleNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:alternativeTitleName ;
+    sh:name "DomainAlternativeTitleNameShape" ;
+    sh:description "ont:alternativeTitleName may only appear on ont:AlternativeTitle individuals." ;
+    sh:class ont:AlternativeTitle ;
+    sh:message "ont:alternativeTitleName used on a non-AlternativeTitle subject." .
+
+# --- ont:isFrom domain: AlternativeTitle only ---
+shape:DomainIsFromShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:isFrom ;
+    sh:name "DomainIsFromShape" ;
+    sh:description "ont:isFrom may only be used by ont:AlternativeTitle individuals." ;
+    sh:class ont:AlternativeTitle ;
+    sh:message "ont:isFrom used on a non-AlternativeTitle subject. Domain is ont:AlternativeTitle." .
+
+# --- ont:hasType domain: AlternativeTitle only ---
+shape:DomainHasTypeShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:hasType ;
+    sh:name "DomainHasTypeShape" ;
+    sh:description "ont:hasType may only be used by ont:AlternativeTitle individuals." ;
+    sh:class ont:AlternativeTitle ;
+    sh:message "ont:hasType used on a non-AlternativeTitle subject. Domain is ont:AlternativeTitle." .
+
+# --- ont:categoryName domain: Category only ---
+shape:DomainCategoryNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:categoryName ;
+    sh:name "DomainCategoryNameShape" ;
+    sh:description "ont:categoryName may only appear on ont:Category individuals." ;
+    sh:class ont:Category ;
+    sh:message "ont:categoryName used on a non-Category subject." .
+
+# --- ont:roleName domain: Role only ---
+shape:DomainRoleNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:roleName ;
+    sh:name "DomainRoleNameShape" ;
+    sh:description "ont:roleName may only appear on ont:Role individuals." ;
+    sh:class ont:Role ;
+    sh:message "ont:roleName used on a non-Role subject." .
+
+# --- ont:genreName domain: Genre only ---
+shape:DomainGenreNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:genreName ;
+    sh:name "DomainGenreNameShape" ;
+    sh:description "ont:genreName may only appear on ont:Genre individuals." ;
+    sh:class ont:Genre ;
+    sh:message "ont:genreName used on a non-Genre subject." .
+
+# --- ont:content_type_name domain: ContentType only ---
+shape:DomainContentTypeNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:content_type_name ;
+    sh:name "DomainContentTypeNameShape" ;
+    sh:description "ont:content_type_name may only appear on ont:ContentType individuals." ;
+    sh:class ont:ContentType ;
+    sh:message "ont:content_type_name used on a non-ContentType subject." .
+
+# --- ont:regionName domain: Region only ---
+shape:DomainRegionNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:regionName ;
+    sh:name "DomainRegionNameShape" ;
+    sh:description "ont:regionName may only appear on ont:Region individuals." ;
+    sh:class ont:Region ;
+    sh:message "ont:regionName used on a non-Region subject." .
+
+# --- ont:title_type_name domain: TitleType only ---
+shape:DomainTitleTypeNameShape a sh:NodeShape ;
+    sh:targetSubjectsOf ont:title_type_name ;
+    sh:name "DomainTitleTypeNameShape" ;
+    sh:description "ont:title_type_name may only appear on ont:TitleType individuals." ;
+    sh:class ont:TitleType ;
+    sh:message "ont:title_type_name used on a non-TitleType subject." .
+
+
+# =================================================================
+# SECTION C — RANGE + CARDINALITY + FORMAT 
+# =================================================================
+
+# --- 1. TITLE ---
 shape:TitleShape a sh:NodeShape ;
     sh:targetClass ont:Title ;
     sh:name "TitleShape" ;
-    sh:description "Every Title must have a primaryTitle and be classified as a ContentType." ;
+    sh:description "Every Title must have exactly one primaryTitle string and exactly one ContentType classification." ;
 
-    # primaryTitle is mandatory and must be a string
     sh:property [
         sh:path ont:primaryTitle ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "primaryTitle" ;
-        sh:message "A Title must have exactly one primaryTitle of type xsd:string."
+        sh:message "A Title must have exactly one non-empty primaryTitle of type xsd:string."
     ] ;
 
-    # isClassifiedAs is mandatory and must point to a ContentType
     sh:property [
         sh:path ont:isClassifiedAs ;
         sh:minCount 1 ;
@@ -33,7 +351,6 @@ shape:TitleShape a sh:NodeShape ;
         sh:message "A Title must be classified as exactly one ContentType."
     ] ;
 
-    # contains is optional but must point to a Participation
     sh:property [
         sh:path ont:contains ;
         sh:class ont:Participation ;
@@ -41,7 +358,6 @@ shape:TitleShape a sh:NodeShape ;
         sh:message "The contains property must point to a Participation individual."
     ] ;
 
-    # hasGenre is optional but must point to a Genre
     sh:property [
         sh:path ont:hasGenre ;
         sh:class ont:Genre ;
@@ -49,7 +365,6 @@ shape:TitleShape a sh:NodeShape ;
         sh:message "The hasGenre property must point to a Genre individual."
     ] ;
 
-    # isAka is optional but must point to an AlternativeTitle
     sh:property [
         sh:path ont:isAka ;
         sh:class ont:AlternativeTitle ;
@@ -57,34 +372,31 @@ shape:TitleShape a sh:NodeShape ;
         sh:message "The isAka property must point to an AlternativeTitle individual."
     ] ;
 
-    # startYear is optional but must be a string
+    # startYear is optional but if present must be a 4-digit year string
     sh:property [
         sh:path ont:startYear ;
-        sh:datatype xsd:string ;
-        sh:name "startYear" ;
-        sh:message "startYear must be of type xsd:string."
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1888 ;
+        sh:maxInclusive 2030 ;
+        sh:message "startYear must be an integer between 1888 (first film) and 2030."
     ] .
 
-# =================================================================
-# 2. TALENT
-# =================================================================
-
+# --- 2. TALENT ---
 shape:TalentShape a sh:NodeShape ;
     sh:targetClass ont:Talent ;
     sh:name "TalentShape" ;
-    sh:description "Every Talent must have a talentName." ;
+    sh:description "Every Talent must have exactly one non-empty talentName." ;
 
-    # talentName is mandatory and must be a string
     sh:property [
         sh:path ont:talentName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "talentName" ;
-        sh:message "A Talent must have exactly one talentName of type xsd:string."
+        sh:message "A Talent must have exactly one non-empty talentName of type xsd:string."
     ] ;
 
-    # participatesIn is optional but must point to a Participation
     sh:property [
         sh:path ont:participatesIn ;
         sh:class ont:Participation ;
@@ -92,16 +404,12 @@ shape:TalentShape a sh:NodeShape ;
         sh:message "The participatesIn property must point to a Participation individual."
     ] .
 
-# =================================================================
-# 3. PARTICIPATION
-# =================================================================
-
+# --- 3. PARTICIPATION ---
 shape:ParticipationShape a sh:NodeShape ;
     sh:targetClass ont:Participation ;
     sh:name "ParticipationShape" ;
-    sh:description "Every Participation must link to at least one Category via ont:as." ;
+    sh:description "Every Participation must be linked to a Category (ont:as), be reachable from a Title (ont:contains), and be reachable from a Talent (ont:participatesIn)." ;
 
-    # as is mandatory and must point to a Category
     sh:property [
         sh:path ont:as ;
         sh:minCount 1 ;
@@ -110,7 +418,6 @@ shape:ParticipationShape a sh:NodeShape ;
         sh:message "A Participation must have at least one ont:as pointing to a Category."
     ] ;
 
-    # plays is optional but must point to a Role
     sh:property [
         sh:path ont:plays ;
         sh:class ont:Role ;
@@ -118,34 +425,47 @@ shape:ParticipationShape a sh:NodeShape ;
         sh:message "The plays property must point to a Role individual."
     ] ;
 
-    # job is optional but must be a string
     sh:property [
         sh:path ont:job ;
         sh:datatype xsd:string ;
         sh:name "job" ;
         sh:message "The job property must be of type xsd:string."
+    ] ;
+
+    # Inverse reachability: every Participation must be referenced by at least one Title
+    sh:property [
+        sh:path [ sh:inversePath ont:contains ] ;
+        sh:minCount 1 ;
+        sh:class ont:Title ;
+        sh:name "inverseContains" ;
+        sh:message "A Participation must be referenced by at least one Title via ont:contains."
+    ] ;
+
+    # Inverse reachability: every Participation must be referenced by at least one Talent
+    sh:property [
+        sh:path [ sh:inversePath ont:participatesIn ] ;
+        sh:minCount 1 ;
+        sh:class ont:Talent ;
+        sh:name "inverseParticipatesIn" ;
+        sh:message "A Participation must be referenced by at least one Talent via ont:participatesIn."
     ] .
 
-# =================================================================
-# 4. ALTERNATIVE TITLE
-# =================================================================
-
+# --- 4. ALTERNATIVE TITLE ---
 shape:AlternativeTitleShape a sh:NodeShape ;
     sh:targetClass ont:AlternativeTitle ;
     sh:name "AlternativeTitleShape" ;
-    sh:description "Every AlternativeTitle must have a name." ;
+    sh:description "Every AlternativeTitle must have a non-empty name and be reachable from a Title." ;
 
-    # alternativeTitleName is mandatory and must be a string
     sh:property [
         sh:path ont:alternativeTitleName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "alternativeTitleName" ;
-        sh:message "An AlternativeTitle must have exactly one alternativeTitleName of type xsd:string."
+        sh:message "An AlternativeTitle must have exactly one non-empty alternativeTitleName."
     ] ;
 
-    # isFrom is optional but must point to a Region
     sh:property [
         sh:path ont:isFrom ;
         sh:class ont:Region ;
@@ -153,117 +473,113 @@ shape:AlternativeTitleShape a sh:NodeShape ;
         sh:message "The isFrom property must point to a Region individual."
     ] ;
 
-    # hasType is optional but must point to a TitleType
     sh:property [
         sh:path ont:hasType ;
         sh:class ont:TitleType ;
         sh:name "hasType" ;
         sh:message "The hasType property must point to a TitleType individual."
+    ] ;
+
+    # Inverse reachability: every AlternativeTitle must be referenced by a Title
+    sh:property [
+        sh:path [ sh:inversePath ont:isAka ] ;
+        sh:minCount 1 ;
+        sh:class ont:Title ;
+        sh:name "inverseIsAka" ;
+        sh:message "An AlternativeTitle must be referenced by at least one Title via ont:isAka."
     ] .
 
-# =================================================================
-# 5. CATEGORY
-# =================================================================
-
+# --- 5. CATEGORY ---
 shape:CategoryShape a sh:NodeShape ;
     sh:targetClass ont:Category ;
     sh:name "CategoryShape" ;
-    sh:description "Every Category must have a categoryName." ;
+    sh:description "Every Category must have a non-empty categoryName." ;
 
     sh:property [
         sh:path ont:categoryName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "categoryName" ;
-        sh:message "A Category must have exactly one categoryName of type xsd:string."
+        sh:message "A Category must have exactly one non-empty categoryName."
     ] .
 
-# =================================================================
-# 6. ROLE
-# =================================================================
-
+# --- 6. ROLE ---
 shape:RoleShape a sh:NodeShape ;
     sh:targetClass ont:Role ;
     sh:name "RoleShape" ;
-    sh:description "Every Role must have a roleName." ;
+    sh:description "Every Role must have a non-empty roleName." ;
 
     sh:property [
         sh:path ont:roleName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "roleName" ;
-        sh:message "A Role must have exactly one roleName of type xsd:string."
+        sh:message "A Role must have exactly one non-empty roleName."
     ] .
 
-# =================================================================
-# 7. GENRE
-# =================================================================
-
+# --- 7. GENRE ---
 shape:GenreShape a sh:NodeShape ;
     sh:targetClass ont:Genre ;
     sh:name "GenreShape" ;
-    sh:description "Every Genre must have a genreName." ;
+    sh:description "Every Genre must have a non-empty genreName." ;
 
     sh:property [
         sh:path ont:genreName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "genreName" ;
-        sh:message "A Genre must have exactly one genreName of type xsd:string."
+        sh:message "A Genre must have exactly one non-empty genreName."
     ] .
 
-# =================================================================
-# 8. CONTENT TYPE
-# =================================================================
-
+# --- 8. CONTENT TYPE ---
 shape:ContentTypeShape a sh:NodeShape ;
     sh:targetClass ont:ContentType ;
     sh:name "ContentTypeShape" ;
-    sh:description "Every ContentType must have a content_type_name." ;
+    sh:description "Every ContentType must have a non-empty content_type_name." ;
 
     sh:property [
         sh:path ont:content_type_name ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "content_type_name" ;
-        sh:message "A ContentType must have exactly one content_type_name of type xsd:string."
+        sh:message "A ContentType must have exactly one non-empty content_type_name."
     ] .
 
-# =================================================================
-# 9. REGION
-# =================================================================
-
+# --- 9. REGION ---
 shape:RegionShape a sh:NodeShape ;
     sh:targetClass ont:Region ;
     sh:name "RegionShape" ;
-    sh:description "Every Region must have a regionName." ;
+    sh:description "Every Region must have at least one non-empty regionName." ;
 
     sh:property [
         sh:path ont:regionName ;
         sh:minCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "regionName" ;
-        sh:message "A Region must have at least one regionName of type xsd:string."
+        sh:message "A Region must have at least one non-empty regionName."
     ] .
 
-# =================================================================
-# 10. TITLE TYPE
-# =================================================================
-
+# --- 10. TITLE TYPE ---
 shape:TitleTypeShape a sh:NodeShape ;
     sh:targetClass ont:TitleType ;
     sh:name "TitleTypeShape" ;
-    sh:description "Every TitleType must have a title_type_name." ;
+    sh:description "Every TitleType must have a non-empty title_type_name." ;
 
     sh:property [
         sh:path ont:title_type_name ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+        sh:minLength 1 ;
         sh:name "title_type_name" ;
-        sh:message "A TitleType must have exactly one title_type_name of type xsd:string."
+        sh:message "A TitleType must have exactly one non-empty title_type_name."
     ] .

@@ -462,7 +462,7 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#birthYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#categoryName"/>
@@ -474,11 +474,11 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#deathYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#endYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#genreName"/>
@@ -522,7 +522,7 @@
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#startYear"/>
-        <Datatype abbreviatedIRI="xsd:string"/>
+        <Datatype abbreviatedIRI="xsd:integer"/>
     </DataPropertyRange>
     <DataPropertyRange>
         <DataProperty IRI="#talentName"/>

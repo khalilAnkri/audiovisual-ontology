@@ -1,0 +1,2179 @@
+ COMPLETE DOCUMENTATION: SECTIONS 3 & 4
+Deep Technical Guide for Presentation Defense
+
+SECTION 3: R2RML MAPPINGS - COMPLETE TECHNICAL GUIDE
+
+1. R2RML FUNDAMENTALS
+1.1 What is R2RML?
+Definition:
+R2RML (RDB to RDF Mapping Language) is a W3C Recommendation published in September 2012. It defines a language for expressing customized mappings from relational databases to RDF datasets.
+Key Characteristics:
+
+Declarative: You describe what to map, not how to do it
+Standard: W3C Recommendation (international standard)
+Database-agnostic: Works with any SQL database
+Triple-based: Maps database rows to RDF triples
+
+Why R2RML?
+
+Automates DB → RDF transformation
+Repeatable process (regenerate anytime DB changes)
+Preserves relational integrity in semantic form
+Industry standard (tools available from multiple vendors)
+
+
+1.2 Core R2RML Concepts
+TriplesMap
+The fundamental building block. One TriplesMap = one transformation rule.
+Structure:
+turtle<#MapName> a rr:TriplesMap;
+    rr:logicalTable [ ... ];     # SQL source
+    rr:subjectMap [ ... ];        # IRI generation + type
+    rr:predicateObjectMap [ ... ] # Properties
+Analogy: Think of a TriplesMap like a recipe:
+
+Logical table = ingredients (where data comes from)
+Subject map = plate setup (how to identify each dish)
+Predicate-object maps = assembly instructions (what goes where)
+
+
+Logical Table
+Two options:
+Option 1: Direct table reference
+turtlerr:logicalTable [ rr:tableName "genre" ]
+
+Simple
+Maps entire table
+Most common for dictionary/reference tables
+
+Option 2: SQL Query
+turtlerr:logicalTable [ 
+    rr:sqlQuery """
+        SELECT tp.title_id, tp.talent_id, tp.ord, tr.role_id
+        FROM title_principal tp
+        JOIN talent_role tr ON tp.talent_id = tr.talent_id
+    """ 
+]
+
+Powerful
+Can join multiple tables
+Custom transformations
+Used when schema doesn't perfectly match ontology
+
+When to use SQL query:
+
+Need columns from multiple tables
+Need to compute derived values
+Need to filter rows
+Need to handle complex relationships
+
+
+Subject Map
+Defines how to create the IRI (unique identifier) for each RDF resource.
+Template syntax:
+turtlerr:subjectMap [
+    rr:template "https://khalilankri.../data/genre/{genre_id}";
+    rr:class ont:Genre
+]
+Key components:
+
+rr:template: URI pattern with placeholders {column_name}
+rr:class: RDF type (equivalent to rdf:type ont:Genre)
+
+Template rules:
+
+Placeholders replaced with column values
+Must produce valid absolute IRIs
+Case-sensitive column names
+Can combine multiple columns: {title_id}_{talent_id}_{ord}
+
+Example transformation:
+Database row: genre_id=1, genre_name="Action"
+Generated IRI: https://khalilankri.../data/genre/1
+Generated triple: <...data/genre/1> a ont:Genre .
+
+Predicate-Object Map
+Defines properties (predicates) and their values (objects).
+Three types of objects:
+1. Column-based (literals):
+turtlerr:predicateObjectMap [
+    rr:predicate ont:genreName;
+    rr:objectMap [ rr:column "genre_name" ]
+]
+Generates: <...genre/1> ont:genreName "Action" .
+2. Template-based (direct IRIs) - AVOID:
+turtlerr:objectMap [ 
+    rr:template "https://khalilankri.../data/genre/{genre_id}" 
+]
+⚠️ Problem: Creates IRI but no rdf:type assertion = "homeless individual"
+3. Parent Triples Map (recommended for relationships):
+turtlerr:objectMap [
+    rr:parentTriplesMap <#MapGenre>;
+    rr:joinCondition [ 
+        rr:child "genre_id"; 
+        rr:parent "genre_id" 
+    ]
+]
+✓ Better: Ensures referenced entity exists with proper type
+
+1.3 Parent Triples Maps vs Direct Templates
+This is critical - likely to be asked about!
+Direct Template Approach (BAD)
+turtle<#MapTitle> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "title" ];
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/title/{title_id}";
+        rr:class ont:Title
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:isClassifiedAs;
+        rr:objectMap [ 
+            rr:template "https://khalilankri.../data/contentType/{content_type_id}" 
+        ]
+    ] .
+Problems:
+
+Homeless individuals: IRI created but no rdf:type ont:ContentType
+Dangling references: What if content_type_id=999 doesn't exist in content_type table?
+No validation: No guarantee referenced entity exists
+Duplicate URI logic: URI template repeated in multiple places
+
+Result in RDF:
+turtle<...title/tt001> a ont:Title ;
+    ont:isClassifiedAs <...contentType/2> .
+
+# But <...contentType/2> has NO rdf:type!
+# SPARQL query: "Show all ContentTypes" returns NOTHING
+
+Parent Triples Map Approach (GOOD)
+turtle<#MapContentType> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "content_type" ];
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/contentType/{content_type_id}";
+        rr:class ont:ContentType
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:content_type_name;
+        rr:objectMap [ rr:column "content_type_name" ]
+    ] .
+
+<#MapTitle> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "title" ];
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/title/{title_id}";
+        rr:class ont:Title
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:isClassifiedAs;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapContentType>;  # Reference to TriplesMap
+            rr:joinCondition [ 
+                rr:child "content_type_id";   # FK in title table
+                rr:parent "content_type_id"   # PK in content_type table
+            ]
+        ]
+    ] .
+Benefits:
+
+Referential integrity: SQL JOIN ensures referenced entity exists
+Proper typing: ContentType TriplesMap asserts rdf:type
+Single source of truth: URI template defined once
+Validation: If join fails (no matching row), no triple created
+
+Result in RDF:
+turtle<...contentType/2> a ont:ContentType ;
+    ont:content_type_name "movie" .
+
+<...title/tt001> a ont:Title ;
+    ont:isClassifiedAs <...contentType/2> .
+
+# Both entities properly typed!
+# SPARQL query works correctly
+
+Join Condition Explained
+turtlerr:joinCondition [ 
+    rr:child "content_type_id";    # Column in current table (title)
+    rr:parent "content_type_id"    # Column in parent table (content_type)
+]
+SQL equivalent:
+sqlSELECT t.title_id, ct.content_type_id
+FROM title t
+JOIN content_type ct ON t.content_type_id = ct.content_type_id
+Processing:
+
+R2RML processor reads title table
+For each row, looks up matching content_type row
+If match found: create triple linking the two IRIs
+If no match: skip (referential integrity preserved)
+
+
+1.4 NULL Handling
+Problem: What happens when a foreign key is NULL?
+Example:
+sqltitle_aka table:
+title_id | ord | aka_title        | region_id
+tt001    | 1   | "El Padrino"     | 5
+tt001    | 2   | "Le Parrain"     | 3
+tt002    | 1   | "Batman Begins"  | NULL      ← No region
+With direct template:
+turtlerr:objectMap [ 
+    rr:template "https://khalilankri.../data/region/{region_id}" 
+]
+⚠️ Problem: region_id=NULL produces malformed IRI: .../region/
+With parent triples map:
+turtlerr:objectMap [
+    rr:parentTriplesMap <#MapRegion>;
+    rr:joinCondition [ 
+        rr:child "region_id"; 
+        rr:parent "region_id" 
+    ]
+]
+✓ Solution: NULL values cause join to fail gracefully → no triple created
+Result:
+turtle# Row with region_id=5
+<...alternativeTitle/tt001_1> ont:isFrom <...region/5> .
+
+# Row with region_id=3
+<...alternativeTitle/tt001_2> ont:isFrom <...region/3> .
+
+# Row with region_id=NULL
+# NO ont:isFrom triple created (correct behavior!)
+
+2. OUR MAPPING ARCHITECTURE
+2.1 Namespace Strategy
+Two-tier design:
+Tier 1: Ontology Namespace (Schema)
+https://khalilankri.github.io/audiovisual-ontology/1.0#
+                                                     ↑
+                                                   hash (#)
+Used for:
+
+Classes: ont:Title, ont:Talent, ont:Genre
+Properties: ont:primaryTitle, ont:hasGenre, ont:participatesIn
+
+Why hash (#)?
+
+Fragment identifiers (client-side)
+All ontology terms in single file
+Standard for vocabularies/ontologies
+
+
+Tier 2: Data Namespace (Instances)
+https://khalilankri.github.io/audiovisual-ontology/data/
+                                                     ↑
+                                                  slash (/)
+Used for:
+
+Instances: data:title/tt001, data:genre/1, data:talent/nm0000123
+
+Why slash (/)?
+
+Each resource can have its own URL
+RESTful access pattern
+Enables content negotiation
+Standard for instance data
+
+
+Why separate namespaces?
+
+Deployment flexibility:
+
+Ontology served from /1.0/ontology.ttl
+Data served from /data/titles.ttl, /data/talents.ttl, etc.
+
+
+Content negotiation:
+
+Request ont:Title → get class definition
+Request data:title/tt001 → get instance data
+
+
+Versioning:
+
+Ontology: /1.0#, /2.0# (versions)
+Data: /data/ (stays constant)
+
+
+Best practices:
+
+W3C Linked Data guidelines
+Industry standard pattern
+
+
+
+
+2.2 IRI Template Design
+Principles:
+
+One path segment per class:
+
+data:title/tt001      ← /title/ segment
+data:genre/1          ← /genre/ segment
+data:talent/nm0000123 ← /talent/ segment
+Prevents collisions between different entity types
+
+Use natural IDs when available:
+
+data:title/tt0068646    ← IMDb tconst (external identifier)
+data:talent/nm0000199   ← IMDb nconst (external identifier)
+Benefits:
+
+Traceable to source data
+Meaningful to humans
+Stable across regenerations
+
+
+Composite keys for junction tables:
+
+data:participation/tt001_nm002_1
+                   ↑      ↑      ↑
+                   |      |      order number
+                   |      talent_id
+                   title_id
+Ensures uniqueness when same entities appear multiple times
+
+CamelCase for multi-word classes:
+
+data:alternativeTitle/tt001_1    ← not alternative_title
+data:contentType/2               ← not content_type
+Matches ontology naming conventions
+
+2.3 Dictionary Classes Pattern
+What are dictionary classes?
+Reference data, controlled vocabularies, lookup tables
+Examples in our project:
+
+Genre (Action, Drama, Comedy)
+Category (actor, director, writer)
+Role (character names)
+ContentType (movie, TV series, short)
+TitleType (original, alternative, DVD)
+Region (country/region codes)
+
+Common pattern:
+turtle<#MapGenre> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "genre" ];
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/genre/{genre_id}";
+        rr:class ont:Genre
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:genreName;
+        rr:objectMap [ rr:column "genre_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "genre_name" ]
+    ] .
+Why this pattern works:
+
+Simple one-to-one mapping (1 row → 1 resource)
+Single data property (name)
+rdfs:label for human readability
+Foundation for object properties in other entities
+
+All 6 dictionary classes follow identical structure - code reuse, easy maintenance
+
+2.4 Core Entities: Title
+Complexity: Most complex mapping in our system
+Why complex?
+
+Multiple data properties
+Multiple object properties
+Links to 3 different entity types
+Central hub of the ontology
+
+Breakdown:
+turtle<#MapTitle> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "title" ];
+    
+    # Subject: Generate IRI + declare type
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/title/{title_id}";
+        rr:class ont:Title
+    ];
+Output: <data:title/tt001> a ont:Title .
+
+turtle    # Data Property 1: Title name
+    rr:predicateObjectMap [
+        rr:predicate ont:primaryTitle;
+        rr:objectMap [ rr:column "primary_title" ]
+    ];
+Output: <data:title/tt001> ont:primaryTitle "The Godfather" .
+
+turtle    # Data Property 2: Release year
+    rr:predicateObjectMap [
+        rr:predicate ont:startYear;
+        rr:objectMap [ rr:column "start_year"; rr:datatype xsd:string ]
+    ];
+Output: <data:title/tt001> ont:startYear "1972"^^xsd:string .
+Note: rr:datatype xsd:string creates typed literal (not just plain string)
+
+turtle    # Object Property 1: Classification (movie, TV series, etc.)
+    rr:predicateObjectMap [
+        rr:predicate ont:isClassifiedAs;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapContentType>;
+            rr:joinCondition [ 
+                rr:child "content_type_id"; 
+                rr:parent "content_type_id" 
+            ]
+        ]
+    ];
+SQL equivalent:
+sqlSELECT t.title_id, ct.content_type_id
+FROM title t
+JOIN content_type ct ON t.content_type_id = ct.content_type_id
+Output: <data:title/tt001> ont:isClassifiedAs <data:contentType/2> .
+
+turtle    # Object Property 2: Alternative titles
+    rr:predicateObjectMap [
+        rr:predicate ont:isAka;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapAlternativeTitle>;
+            rr:joinCondition [ rr:child "title_id"; rr:parent "title_id" ]
+        ]
+    ];
+SQL equivalent:
+sqlSELECT t.title_id, ta.title_id, ta.ord
+FROM title t
+JOIN title_aka ta ON t.title_id = ta.title_id
+Output: <data:title/tt001> ont:isAka <data:alternativeTitle/tt001_1> .
+Note: One title can have multiple alternative titles (1-to-many)
+
+turtle    # Object Property 3: Participations (cast/crew)
+    rr:predicateObjectMap [
+        rr:predicate ont:contains;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapParticipation>;
+            rr:joinCondition [ rr:child "title_id"; rr:parent "title_id" ]
+        ]
+    ];
+Output: <data:title/tt001> ont:contains <data:participation/tt001_nm001_1> .
+Note: One title contains many participations (1-to-many)
+
+turtle    # Human-readable label
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "primary_title" ]
+    ] .
+Output: <data:title/tt001> rdfs:label "The Godfather" .
+
+Summary for one title row:
+Input (database row):
+title_id: tt001
+primary_title: "The Godfather"
+start_year: 1972
+content_type_id: 2
+Output (RDF triples):
+turtle<data:title/tt001> a ont:Title ;
+    ont:primaryTitle "The Godfather" ;
+    ont:startYear "1972"^^xsd:string ;
+    ont:isClassifiedAs <data:contentType/2> ;
+    ont:isAka <data:alternativeTitle/tt001_1> ;
+    ont:isAka <data:alternativeTitle/tt001_2> ;
+    ont:contains <data:participation/tt001_nm001_1> ;
+    ont:contains <data:participation/tt001_nm002_2> ;
+    rdfs:label "The Godfather" .
+Count: 1 row → 8+ triples (depending on how many akas and participations)
+
+2.5 Participation Bridge Pattern
+Challenge: Map many-to-many relationships
+Relational model:
+title (1) ←→ (N) title_principal (N) ←→ (1) talent
+Semantic model: Reification (make the relationship a first-class entity)
+turtleTitle --contains--> Participation <--participatesIn-- Talent
+
+Why reification?
+
+Rich metadata: Participation has its own properties:
+
+ont:as → Category (actor, director, etc.)
+ont:job → Job description
+ont:plays → Role (character name)
+
+
+Uniqueness: Same talent can appear multiple times in same title
+
+Leonardo DiCaprio in "Inception" plays "Cobb" (lead actor)
+Leonardo DiCaprio in "Inception" credited as "Executive Producer"
+Two separate Participation entities needed!
+
+
+Query flexibility: Can query:
+
+All participations for a title
+All participations by a talent
+All participations in a specific category
+Participation details (category, job, role)
+
+
+
+
+Mapping:
+turtle<#MapParticipation> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "title_principal" ];
+    
+    # Composite IRI ensures uniqueness
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/participation/{title_id}_{talent_id}_{ord}";
+        rr:class ont:Participation
+    ];
+Why {title_id}_{talent_id}_{ord}?
+
+title_id alone: Not unique (many talents per title)
+talent_id alone: Not unique (talent in many titles)
+title_id + talent_id: Not unique (talent can have multiple roles in same title!)
+title_id + talent_id + ord: ✓ Unique!
+
+Example:
+title_id=tt001, talent_id=nm001, ord=1
+→ data:participation/tt001_nm001_1
+
+title_id=tt001, talent_id=nm001, ord=2
+→ data:participation/tt001_nm001_2
+Same talent, same title, different participation!
+
+turtle    # Link to Category (actor, director, etc.)
+    rr:predicateObjectMap [
+        rr:predicate ont:as;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapCategory>;
+            rr:joinCondition [ 
+                rr:child "category_id"; 
+                rr:parent "category_id" 
+            ]
+        ]
+    ];
+Output: <data:participation/tt001_nm001_1> ont:as <data:category/1> .
+
+turtle    # Job description
+    rr:predicateObjectMap [
+        rr:predicate ont:job;
+        rr:objectMap [ rr:column "job" ]
+    ] .
+Output: <data:participation/tt001_nm001_1> ont:job "Lead Actor" .
+
+Complete participation example:
+Input (database row):
+title_id: tt001
+talent_id: nm001
+ord: 1
+category_id: 1
+job: "Lead Actor"
+Output (RDF):
+turtle<data:participation/tt001_nm001_1> a ont:Participation ;
+    ont:as <data:category/1> ;
+    ont:job "Lead Actor" .
+
+# Plus bidirectional links from Title and Talent:
+<data:title/tt001> ont:contains <data:participation/tt001_nm001_1> .
+<data:talent/nm001> ont:participatesIn <data:participation/tt001_nm001_1> .
+Result: Rich, queryable network of relationships
+
+2.6 The Role Problem & SQL JOIN Solution
+Problem:
+talent_role table structure:
+talent_id | role_id
+nm001     | 5
+nm001     | 12
+Missing: title_id and ord columns!
+Why we need them:
+Participation IRI requires: {title_id}_{talent_id}_{ord}
+But talent_role only has: {talent_id}
+Can't build Participation IRI! ❌
+
+Solution: Custom SQL JOIN
+turtle<#MapParticipationPlaysRole> a rr:TriplesMap;
+    rr:logicalTable [ 
+        rr:sqlQuery """
+            SELECT tp.title_id, tp.talent_id, tp.ord, tr.role_id
+            FROM title_principal tp
+            JOIN talent_role tr ON tp.talent_id = tr.talent_id
+        """
+    ];
+What this does:
+
+Start with title_principal (has title_id, talent_id, ord)
+JOIN talent_role (adds role_id)
+Result: All 4 columns needed!
+
+Query result:
+title_id | talent_id | ord | role_id
+tt001    | nm001     | 1   | 5
+tt001    | nm001     | 1   | 12
+tt002    | nm001     | 2   | 5
+
+turtle    # Use SAME IRI as MapParticipation
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/participation/{title_id}_{talent_id}_{ord}"
+        # NO rr:class! Participation already typed by MapParticipation
+    ];
+Key insight: Two TriplesMaps can target the same subject IRI!
+
+MapParticipation creates the individual
+MapParticipationPlaysRole adds properties to it
+
+
+turtle    # Add ont:plays property
+    rr:predicateObjectMap [
+        rr:predicate ont:plays;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapRole>;
+            rr:joinCondition [ rr:child "role_id"; rr:parent "role_id" ]
+        ]
+    ] .
+Output:
+turtle# From MapParticipation:
+<data:participation/tt001_nm001_1> a ont:Participation ;
+    ont:as <data:category/1> ;
+    ont:job "Lead Actor" .
+
+# From MapParticipationPlaysRole:
+<data:participation/tt001_nm001_1> ont:plays <data:role/5> .
+<data:participation/tt001_nm001_1> ont:plays <data:role/12> .
+Same subject, different properties!
+One participation can have multiple roles - shows versatility (actor who also produces, directs, etc.)
+
+2.7 Junction Table Pattern
+What's a junction table?
+Many-to-many relationship in relational databases
+Examples:
+
+title_genre: Links titles to genres (one title = many genres)
+title_aka_title_type: Links alternative titles to types
+
+Key difference from Participation:
+Junction tables don't create new entities - they just add properties to existing ones
+
+Example: title_genre
+sqltitle_genre table:
+title_id | genre_id
+tt001    | 1        -- The Godfather → Action
+tt001    | 3        -- The Godfather → Drama
+tt002    | 5        -- Inception → Sci-Fi
+Mapping:
+turtle<#MapTitleGenre> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "title_genre" ];
+    
+    # Reconstruct existing Title IRI
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/title/{title_id}"
+        # NO rr:class! Title already typed by MapTitle
+    ];
+    
+    # Add ont:hasGenre property
+    rr:predicateObjectMap [
+        rr:predicate ont:hasGenre;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapGenre>;
+            rr:joinCondition [ rr:child "genre_id"; rr:parent "genre_id" ]
+        ]
+    ] .
+Key points:
+
+No rr:class - Title already has rdf:type ont:Title from MapTitle
+Reconstructs IRI - Uses template matching MapTitle's pattern
+Only adds properties - Just enriches existing resource
+
+Output:
+turtle# From MapTitle:
+<data:title/tt001> a ont:Title ;
+    ont:primaryTitle "The Godfather" .
+
+# From MapTitleGenre:
+<data:title/tt001> ont:hasGenre <data:genre/1> .
+<data:title/tt001> ont:hasGenre <data:genre/3> .
+Multiple rows → Multiple property values (multi-valued property)
+
+2.8 Alternative Titles
+Special case: New entity created from junction table
+turtle<#MapAlternativeTitle> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "title_aka" ];
+    
+    # Composite IRI (title can have many akas)
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/alternativeTitle/{title_id}_{ord}";
+        rr:class ont:AlternativeTitle
+    ];
+    
+    # Alternative name
+    rr:predicateObjectMap [
+        rr:predicate ont:alternativeTitleName;
+        rr:objectMap [ rr:column "aka_title" ]
+    ];
+    
+    # Link to region (NULL-safe!)
+    rr:predicateObjectMap [
+        rr:predicate ont:isFrom;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapRegion>;
+            rr:joinCondition [ rr:child "region_id"; rr:parent "region_id" ]
+        ]
+    ];
+    
+    # Human-readable label
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "aka_title" ]
+    ] .
+Why composite IRI {title_id}_{ord}?
+
+Same title can have multiple alternative titles
+ord provides ordering/uniqueness
+
+NULL handling:
+
+If region_id is NULL, join fails gracefully
+No ont:isFrom triple created (correct behavior)
+Alternative title still created, just without region link
+
+Back-link from Title:
+Handled by MapTitle's ont:isAka predicate-object map
+Result: Bidirectional relationship
+turtle<data:title/tt001> ont:isAka <data:alternativeTitle/tt001_1> .
+<data:alternativeTitle/tt001_1> ont:alternativeTitleName "El Padrino" ;
+    ont:isFrom <data:region/5> .
+
+2.9 rdfs:label Enhancement
+Why rdfs:label?
+Without labels:
+sparqlSELECT ?title WHERE { ?title a ont:Title } LIMIT 5
+Result:
+https://khalilankri.github.io/audiovisual-ontology/data/title/tt0000001
+https://khalilankri.github.io/audiovisual-ontology/data/title/tt0000002
+https://khalilankri.github.io/audiovisual-ontology/data/title/tt0000005
+Hard to interpret! Need to dereference each URI or do additional queries.
+With labels:
+sparqlSELECT ?label WHERE { 
+    ?title a ont:Title ; 
+           rdfs:label ?label 
+} LIMIT 5
+Result:
+"1Zindagi"
+"Im Schatten des Berges"
+"Foreign Intrigue"
+Immediately readable!
+
+Implementation:
+Added to every entity type:
+turtlerr:predicateObjectMap [
+    rr:predicate rdfs:label;
+    rr:objectMap [ rr:column "primary_title" ]  # or talent_name, genre_name, etc.
+]
+Benefits:
+
+SPARQL results: Readable without URI dereferencing
+RDF browsers: Protégé, GraphDB show labels in UI
+RDFS reasoning: Labels propagate in inference
+Standard practice: W3C recommendation
+Multilingual support: Can have multiple labels in different languages
+
+Cost: One additional triple per entity (~10,000 extra triples)
+Worth it? Absolutely! Massive usability improvement for minimal cost.
+
+3. COMPLETE MAPPING INVENTORY
+3.1 Summary Table
+TriplesMapSQL SourceTypeCreatesPropertiesMapCategorycategoryDictionaryont:CategorycategoryName, rdfs:labelMapRoleroleDictionaryont:RoleroleName, rdfs:labelMapGenregenreDictionaryont:GenregenreName, rdfs:labelMapTitleTypetitle_typeDictionaryont:TitleTypetitle_type_name, rdfs:labelMapContentTypecontent_typeDictionaryont:ContentTypecontent_type_name, rdfs:labelMapRegionregionDictionaryont:RegionregionName, rdfs:labelMapLanguagelanguageDictionaryont:Language(none)MapTitletitleCore entityont:TitleprimaryTitle, startYear, isClassifiedAs, isAka, contains, hasGenre, rdfs:labelMapTalenttalentCore entityont:TalenttalentName, participatesIn, rdfs:labelMapParticipationtitle_principalBridgeont:Participationas, jobMapParticipationPlaysRoleSQL JOINBridge extension(enriches Participation)playsMapTitleGenretitle_genreJunction(enriches Title)hasGenreMapAlternativeTitletitle_akaEntityont:AlternativeTitlealternativeTitleName, isFrom, rdfs:labelMapAkaTitleTypeLinktitle_aka_title_typeJunction(enriches AlternativeTitle)hasType
+Total: 14 TriplesMaps (12 create entities, 2 enrich existing)
+
+3.2 Parent Triples Map Usage
+Count: 9 parent triples maps
+
+Title → ContentType (ont:isClassifiedAs)
+Title → AlternativeTitle (ont:isAka)
+Title → Participation (ont:contains)
+Talent → Participation (ont:participatesIn)
+Participation → Category (ont:as)
+Participation → Role (ont:plays)
+Title → Genre (ont:hasGenre)
+AlternativeTitle → Region (ont:isFrom)
+AlternativeTitle → TitleType (ont:hasType)
+
+Every single object property uses parent triples maps = consistent referential integrity
+
+3.3 Output Statistics
+Input:
+
+8 database tables (title, talent, genre, category, role, content_type, title_type, region)
+6 junction/relationship tables (title_principal, talent_role, title_genre, title_aka, title_aka_title_type, language)
+~1,500 database rows total
+
+Output (out.ttl):
+
+~9,608 RDF triples
+1,250 titles
+845 talents
+~200 dictionary instances
+All with rdfs:label
+
+Multiplier: 1 row → ~6-7 triples average (type + properties + label + relationships)
+
+4. GENERATION PROCESS
+4.1 Configuration
+config.properties:
+properties# R2RML Mapping file
+mappingdocument.file.path=audiovisual_mappings.ttl
+
+# Output file
+output.file.path=out.ttl
+output.format=TURTLE
+
+# Database connection (MySQL)
+database.driver=com.mysql.cj.jdbc.Driver
+database.url=jdbc:mysql://localhost:3306/audiovisual_db
+database.user=root
+database.password=yourpassword
+database.name=audiovisual_db
+database.type=mysql
+
+4.2 Execution
+Command:
+bashjava -jar r2rml.jar config.properties
+Process:
+
+Read config file
+Connect to MySQL database
+Parse audiovisual_mappings.ttl
+For each TriplesMap:
+
+Execute SQL query (table or custom)
+For each result row:
+
+Generate subject IRI
+Emit rdf:type triple
+Resolve parent triples map joins
+Emit property triples
+
+
+
+
+Write all triples to out.ttl
+Close database connection
+
+Duration: ~5-10 seconds for 10,000 triples
+
+4.3 Testing & Validation
+Apache Jena ARQ:
+bash# Test SPARQL query on generated RDF file
+arq --data=out.ttl --query=test.sparql
+Example test query:
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT (COUNT(*) AS ?count) WHERE { ?s a ont:Title }
+Expected: ?count = 1250
+Validates:
+
+File parses correctly (Turtle syntax)
+Class assertions present
+Can execute SPARQL queries
+
+
+5. POTENTIAL QUESTIONS & ANSWERS
+Q1: "Why use R2RML instead of writing custom code?"
+Answer:
+
+Standard: W3C Recommendation - interoperable, well-documented
+Declarative: Easier to understand and maintain than imperative code
+Tool support: Multiple processors available (our choice, Ontop, etc.)
+Repeatability: Same mappings produce same output every time
+Documentation: Mappings ARE the documentation (self-describing)
+Efficiency: Processors optimized for large datasets
+
+Custom code problems:
+
+Requires programming expertise
+Hard to maintain
+No standard interchange format
+Reinventing the wheel
+
+
+Q2: "Why not use direct templates everywhere instead of parent triples maps?"
+Answer:
+Already covered in detail above, but key points:
+
+Referential integrity: Parent triples maps enforce it like SQL foreign keys
+No homeless individuals: Guarantees rdf:type assertions
+Single source of truth: URI pattern defined once
+NULL handling: Graceful failure instead of malformed IRIs
+Validation: Can't create broken links
+
+Trade-off: Slightly more complex syntax, but worth it for data quality
+
+Q3: "How do you handle updates to the database?"
+Answer:
+Currently: Regenerate everything
+bash# Update database
+mysql -u root -p audiovisual_db < updates.sql
+
+# Regenerate RDF
+java -jar r2rml.jar config.properties
+
+# Reload into Fuseki
+# (Delete old data, upload new out.ttl)
+For production: Could use:
+
+Incremental mappings: Only map changed rows
+Change tracking: Database triggers to track modifications
+SPARQL UPDATE: Modify triples directly in triplestore
+Versioning: Keep historical versions of data
+
+Our choice: Full regeneration is fine for academic project (dataset is small, updates are infrequent)
+
+Q4: "Why composite IRIs for Participation and AlternativeTitle?"
+Answer:
+Participation:
+
+Same talent can appear multiple times in same title
+Example: Actor who also produces → 2 participations needed
+{title_id}_{talent_id} not enough → add {ord} for ordering
+
+AlternativeTitle:
+
+Same title can have many regional/language variations
+{title_id} alone creates collision
+{ord} provides uniqueness
+
+Alternative approaches:
+
+UUID: Random IDs → not traceable, not semantic
+Hash of properties: Complex, fragile
+Auto-increment: Requires database-generated IDs
+
+Our choice: Composite keys are transparent, semantic, and stable
+
+Q5: "What happens if the database schema changes?"
+Answer:
+Minor changes (add column):
+
+Add new predicateObjectMap to relevant TriplesMap
+Regenerate
+
+Major changes (rename table, change foreign keys):
+
+Update TriplesMap definitions
+Test with ARQ
+Regenerate
+Validate with SHACL
+
+Breaking changes (remove required column):
+
+May need ontology changes too
+Update both OWL and R2RML
+Coordinate with data consumers
+
+Best practice:
+
+Version control for mappings (audiovisual_mappings_v1.ttl, v2.ttl)
+Test before deployment
+Document changes
+
+
+Q6: "Why use SQL JOIN in MapParticipationPlaysRole instead of multiple TriplesMaps?"
+Answer:
+Alternative approach (doesn't work):
+turtle<#MapTalentRole> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "talent_role" ];
+    rr:subjectMap [
+        rr:template "???/{talent_id}_{role_id}"  # Can't build Participation IRI!
+    ];
+Problem: talent_role only has {talent_id} and {role_id}, but Participation IRI needs {title_id}_{talent_id}_{ord}
+SQL JOIN solution: Brings all needed columns into one result set
+Benefits:
+
+Access to all required columns
+Single TriplesMap handles complex relationship
+Mirrors how you'd solve it in SQL
+
+Trade-off: Custom SQL query slightly less portable than table reference (but still SQL standard)
+
+Q7: "How do you ensure namespace consistency across all mappings?"
+Answer:
+Prefix declarations at top of file:
+turtle@prefix ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#> .
+@prefix res: <https://khalilankri.github.io/audiovisual-ontology/data/> .
+All templates use full IRI:
+turtlerr:template "https://khalilankri.github.io/audiovisual-ontology/data/title/{title_id}"
+(Not using prefix in template - must be absolute IRI)
+All predicates use prefix:
+turtlerr:predicate ont:primaryTitle
+rr:class ont:Title
+Validation:
+
+ARQ parses and expands prefixes
+Any typo → parser error
+Consistent namespace guaranteed
+
+
+Q8: "What if you need to add a new entity type later?"
+Answer:
+Steps:
+
+Update ontology: Add new class to OWL file
+Create TriplesMap: Follow dictionary or entity pattern
+Add relationships: Use parent triples maps to link to existing entities
+Add rdfs:label: For human readability
+Test: Use ARQ to verify output
+Regenerate: java -jar r2rml.jar config.properties
+Reload: Upload to Fuseki
+
+Example: Adding "Studio" entity
+turtle<#MapStudio> a rr:TriplesMap;
+    rr:logicalTable [ rr:tableName "studio" ];
+    rr:subjectMap [
+        rr:template "https://khalilankri.../data/studio/{studio_id}";
+        rr:class ont:Studio
+    ];
+    rr:predicateObjectMap [
+        rr:predicate ont:studioName;
+        rr:objectMap [ rr:column "studio_name" ]
+    ];
+    rr:predicateObjectMap [
+        rr:predicate rdfs:label;
+        rr:objectMap [ rr:column "studio_name" ]
+    ] .
+
+# Link from Title
+<#MapTitle> ... existing properties ...
+    rr:predicateObjectMap [
+        rr:predicate ont:producedBy;
+        rr:objectMap [
+            rr:parentTriplesMap <#MapStudio>;
+            rr:joinCondition [ rr:child "studio_id"; rr:parent "studio_id" ]
+        ]
+    ] .
+Modularity: Each TriplesMap is independent, easy to add/modify
+
+6. COMMON PITFALLS & HOW WE AVOIDED THEM
+Pitfall 1: Using semanticweb.org namespace
+Problem: We don't control that domain
+Fix: Changed to https://khalilankri.github.io/audiovisual-ontology/
+
+Pitfall 2: Direct templates for object properties
+Problem: Creates homeless individuals
+Fix: Used parent triples maps everywhere
+
+Pitfall 3: Forgetting rdfs:label
+Problem: URIs unreadable in results
+Fix: Added rdfs:label to every entity
+
+Pitfall 4: Property name mismatches
+Problem: R2RML uses ont:categoryName but OWL defines ont:category_name
+Fix: Cross-referenced every property URI against OWL file
+
+Pitfall 5: NULL foreign keys crashing
+Problem: Direct template with NULL creates malformed IRI
+Fix: Parent triples maps handle NULL gracefully
+
+Pitfall 6: Only loading out.ttl
+Problem: Professor said "only loads one file"
+Fix: Loaded 3 files: out.ttl, audiovisual_mappings.ttl, shapes.ttl
+
+SECTION 4: SPARQL DEMONSTRATOR - COMPLETE TECHNICAL GUIDE
+
+1. ARCHITECTURE OVERVIEW
+1.1 Two-Tier Design
+Tier 1: Flask Application (Presentation Layer)
+
+Technology: Python Flask 3.0.0
+Port: 5000
+Role: User interface, business logic, API endpoints
+Responsibilities:
+
+Web UI for query interface
+Query template management
+SPARQL validation
+Error handling
+Result formatting
+Analytics endpoints
+
+
+
+Tier 2: Apache Jena Fuseki (Data Layer)
+
+Technology: Apache Jena Fuseki 6.0.0
+Port: 3030
+Role: Triplestore, SPARQL engine
+Responsibilities:
+
+RDF data storage (TDB2)
+SPARQL query execution
+Query optimization
+Standards compliance
+
+
+
+
+1.2 Why This Architecture?
+Separation of Concerns:
+
+Flask: "What to show and how to present it"
+Fuseki: "How to store and query data efficiently"
+
+Benefits:
+
+Modularity: Can swap Flask for different UI without touching data layer
+Scalability: Can add multiple Flask instances behind load balancer
+Security: Fuseki not directly exposed to users
+Flexibility: Flask can add caching, rate limiting, authentication
+Standards: Fuseki provides W3C-compliant SPARQL endpoint
+
+Alternative (naïve) approach:
+python# BAD: Everything in Flask
+from rdflib import Graph
+g = Graph()
+g.parse("out.ttl")
+
+@app.route('/query', methods=['POST'])
+def query():
+    results = g.query(request.json['sparql'])  # Flask does everything!
+Problems:
+
+❌ No real SPARQL endpoint (can't access via curl, external tools)
+❌ In-memory only (data lost on restart)
+❌ Poor performance (RDFLib not optimized for large datasets)
+❌ No query optimization
+❌ Flask becomes bloated
+
+
+2. APACHE JENA FUSEKI
+2.1 What is Fuseki?
+Definition:
+Apache Jena Fuseki is a SPARQL server - it provides REST-style SPARQL HTTP Update, SPARQL Query, and SPARQL Graph Store Protocol endpoints.
+Key components:
+
+TDB2: Native RDF database (storage engine)
+ARQ: SPARQL query engine
+HTTP layer: RESTful API for SPARQL Protocol
+Admin UI: Web interface for management
+
+
+2.2 Why Fuseki?
+Comparison with alternatives:
+FeatureFusekiGraphDBVirtuosoRDFLibLicenseApache 2.0 (free)Free/CommercialGPL/CommercialMIT (free)SPARQL 1.1✅ Full✅ Full✅ Full⚠️ PartialHTTP Endpoint✅ Yes✅ Yes✅ Yes❌ NoPerformance✅ Good✅ Excellent✅ Excellent⚠️ LimitedSetup✅ Simple⚠️ Complex⚠️ Complex✅ SimpleScaleMillionsBillionsBillions<100KProduction UseBBC, EuropeanaMany enterpriseMany enterprisePrototyping
+Our choice: Fuseki
+
+✅ Free and open-source
+✅ Easy setup (download, run)
+✅ Perfect for academic projects
+✅ Industry standard
+✅ Production-ready at our scale (~10K triples)
+
+
+2.3 TDB2 Storage
+What is TDB2?
+Native RDF storage engine optimized for Jena
+Features:
+
+Persistent: Data survives server restarts
+Indexed: B+Trees for fast lookups
+ACID: Transaction support
+Compressed: Efficient storage
+Optimized: For SPARQL query patterns
+
+File structure:
+fuseki-data/
+├── nodes.dat       # Dictionary: IRIs and literals
+├── prefixes.dat    # Namespace prefixes
+├── GSPO.dat        # Graph-Subject-Predicate-Object index
+├── GPOS.dat        # Graph-Predicate-Object-Subject index
+├── GOSP.dat        # Graph-Object-Subject-Predicate index
+├── POSG.dat        # Predicate-Object-Subject-Graph index
+└── ...             # Other indexes
+Multiple indexes enable fast queries regardless of pattern:
+
+?s ?p ?o → Uses GSPO index
+?s ?p ont:Title → Uses GPOS index
+?s ont:hasGenre ?o → Uses GOSP index
+
+
+2.4 Fuseki Setup
+Our configuration:
+Option 1: Command line (what we use):
+powershellcd apache-jena-fuseki-6.0.0
+fuseki-server.bat --loc=fuseki-data /audiovisual
+Option 2: Config file (production approach):
+turtle@prefix fuseki: <http://jena.apache.org/fuseki#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ja: <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix tdb2: <http://jena.apache.org/2016/tdb#> .
+
+<#service> rdf:type fuseki:Service ;
+    fuseki:name "audiovisual" ;
+    fuseki:endpoint [ fuseki:operation fuseki:query ] ;
+    fuseki:endpoint [ fuseki:operation fuseki:update ] ;
+    fuseki:endpoint [ fuseki:operation fuseki:upload ] ;
+    fuseki:dataset <#dataset> .
+
+<#dataset> rdf:type tdb2:DatasetTDB2 ;
+    tdb2:location "fuseki-data" .
+Endpoints created:
+
+http://localhost:3030/audiovisual/query - SPARQL SELECT/CONSTRUCT
+http://localhost:3030/audiovisual/update - SPARQL INSERT/DELETE
+http://localhost:3030/audiovisual/data - Graph Store Protocol (upload)
+http://localhost:3030/audiovisual - HTML UI
+
+
+2.5 Data Loading
+Method 1: Web UI (easiest)
+
+Go to http://localhost:3030
+Click "audiovisual" → "upload data"
+Select files: out.ttl, audiovisual_mappings.ttl, shapes.ttl
+Click "upload"
+
+Method 2: PowerShell (reproducible)
+powershellInvoke-WebRequest -Uri "http://localhost:3030/audiovisual/data" `
+    -Method POST `
+    -InFile "out.ttl" `
+    -ContentType "text/turtle" `
+    -UseBasicParsing
+Method 3: curl (cross-platform)
+bashcurl -X POST \
+     -H "Content-Type: text/turtle" \
+     --data-binary @out.ttl \
+     http://localhost:3030/audiovisual/data
+Verification:
+sparqlSELECT (COUNT(*) AS ?triples) WHERE { ?s ?p ?o }
+Expected: ~9,957 triples
+
+3. FLASK APPLICATION
+3.1 Application Structure
+File: app.py
+pythonfrom flask import Flask, render_template, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+# Fuseki endpoint
+FUSEKI_ENDPOINT = "http://localhost:3030/audiovisual/sparql"
+
+@app.route('/')
+def index():
+    """Main query interface"""
+    return render_template('index.html')
+
+@app.route('/query', methods=['POST'])
+def query():
+    """Execute SPARQL query"""
+    # Implementation details below
+
+@app.route('/stats', methods=['GET'])
+def stats():
+    """Database statistics"""
+    # Implementation details below
+
+@app.route('/health', methods=['GET'])
+def health():
+    """System health check"""
+    # Implementation details below
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
+3.2 Query Endpoint
+Full implementation:
+python@app.route('/query', methods=['POST'])
+def query():
+    try:
+        # Get SPARQL query from request
+        data = request.get_json()
+        sparql = data.get('sparql', '')
+        
+        if not sparql:
+            return jsonify({'error': 'No SPARQL query provided'}), 400
+        
+        # Forward to Fuseki
+        response = requests.post(
+            FUSEKI_ENDPOINT,
+            data={'query': sparql},
+            headers={'Accept': 'application/sparql-results+json'},
+            timeout=30  # 30 second timeout
+        )
+        
+        # Check Fuseki response
+        if response.status_code != 200:
+            return jsonify({
+                'error': f'Fuseki error: {response.status_code}',
+                'details': response.text
+            }), response.status_code
+        
+        # Parse and format results
+        fuseki_results = response.json()
+        
+        # Extract variable names
+        vars = fuseki_results.get('head', {}).get('vars', [])
+        
+        # Extract bindings (rows)
+        bindings = fuseki_results.get('results', {}).get('bindings', [])
+        
+        # Format for frontend
+        rows = []
+        for binding in bindings:
+            row = {}
+            for var in vars:
+                if var in binding:
+                    row[var] = binding[var].get('value', '')
+                else:
+                    row[var] = ''
+            rows.append(row)
+        
+        return jsonify({
+            'vars': vars,
+            'rows': rows,
+            'count': len(rows)
+        })
+    
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'Query timeout (>30s)'}), 504
+    
+    except requests.exceptions.ConnectionError:
+        return jsonify({'error': 'Cannot connect to Fuseki. Is it running?'}), 503
+    
+    except Exception as e:
+        return jsonify({'error': f'Server error: {str(e)}'}), 500
+Key features:
+
+Validation: Checks for empty query
+Timeout: 30-second limit prevents hanging
+Error handling: Different errors for different failure modes
+Formatting: Converts Fuseki JSON to simpler format for frontend
+HTTP status codes: Proper REST semantics
+
+
+3.3 Statistics Endpoint
+python@app.route('/stats', methods=['GET'])
+def stats():
+    try:
+        # Count titles
+        title_query = """
+            PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+            SELECT (COUNT(DISTINCT ?title) AS ?count)
+            WHERE { ?title a ont:Title }
+        """
+        
+        # Count talents
+        talent_query = """
+            PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+            SELECT (COUNT(DISTINCT ?talent) AS ?count)
+            WHERE { ?talent a ont:Talent }
+        """
+        
+        # Count genres
+        genre_query = """
+            PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+            SELECT (COUNT(DISTINCT ?genre) AS ?count)
+            WHERE { ?genre a ont:Genre }
+        """
+        
+        # Count total triples
+        triple_query = """
+            SELECT (COUNT(*) AS ?count)
+            WHERE { ?s ?p ?o }
+        """
+        
+        # Execute all queries
+        titles = execute_count_query(title_query)
+        talents = execute_count_query(talent_query)
+        genres = execute_count_query(genre_query)
+        triples = execute_count_query(triple_query)
+        
+        return jsonify({
+            'titles': titles,
+            'talents': talents,
+            'genres': genres,
+            'triples': triples
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def execute_count_query(sparql):
+    """Helper: Execute COUNT query and return integer"""
+    response = requests.post(
+        FUSEKI_ENDPOINT,
+        data={'query': sparql},
+        headers={'Accept': 'application/sparql-results+json'},
+        timeout=10
+    )
+    result = response.json()
+    bindings = result['results']['bindings']
+    if bindings:
+        return int(bindings[0]['count']['value'])
+    return 0
+Use cases:
+
+Dashboard metrics
+Monitoring
+Data quality checks
+API consumers
+
+
+3.4 Health Endpoint
+python@app.route('/health', methods=['GET'])
+def health():
+    try:
+        # Test Fuseki connectivity
+        response = requests.get(
+            'http://localhost:3030/$/ping',
+            timeout=5
+        )
+        
+        fuseki_status = 'running' if response.status_code == 200 else 'error'
+        
+        return jsonify({
+            'flask': 'running',
+            'fuseki': fuseki_status,
+            'endpoint': FUSEKI_ENDPOINT,
+            'timestamp': datetime.now().isoformat()
+        })
+    
+    except requests.exceptions.ConnectionError:
+        return jsonify({
+            'flask': 'running',
+            'fuseki': 'unreachable',
+            'endpoint': FUSEKI_ENDPOINT
+        }), 503
+    
+    except Exception as e:
+        return jsonify({
+            'error': str(e)
+        }), 500
+Use cases:
+
+DevOps monitoring (Nagios, Prometheus)
+Load balancer health checks
+Debugging deployment issues
+
+
+3.5 User Interface
+File: templates/index.html
+Key features:
+
+Query dropdown: 13 predefined queries
+Syntax highlighting: Monaco Editor (VS Code engine)
+Result table: Dynamic HTML generation
+Error display: User-friendly messages
+Responsive design: Works on desktop/mobile
+
+JavaScript query execution:
+javascriptasync function executeQuery() {
+    const sparql = editor.getValue();  // Get query from Monaco editor
+    
+    // Show loading spinner
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    
+    try {
+        const response = await fetch('/query', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sparql: sparql })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            // Show error
+            showError(data.error);
+            return;
+        }
+        
+        // Build result table
+        buildResultTable(data.vars, data.rows);
+        
+        // Hide loading, show results
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+        
+    } catch (error) {
+        showError('Network error: ' + error.message);
+    }
+}
+
+function buildResultTable(vars, rows) {
+    const table = document.getElementById('resultTable');
+    table.innerHTML = '';  // Clear previous results
+    
+    // Header row
+    const thead = table.createTHead();
+    const headerRow = thead.insertRow();
+    vars.forEach(v => {
+        const th = document.createElement('th');
+        th.textContent = v;
+        headerRow.appendChild(th);
+    });
+    
+    // Data rows
+    const tbody = table.createTBody();
+    rows.forEach(row => {
+        const tr = tbody.insertRow();
+        vars.forEach(v => {
+            const td = tr.insertCell();
+            td.textContent = row[v] || '';
+        });
+    });
+    
+    // Show row count
+    document.getElementById('rowCount').textContent = `${rows.length} rows`;
+}
+
+4. QUERY PORTFOLIO
+4.1 Query Categories
+Simple Queries (8 total):
+Purpose: Basic SPARQL patterns, data retrieval
+Non-Trivial Queries (5 total):
+Purpose: Demonstrate SPARQL 1.1 features (aggregation, filtering, complex joins)
+
+4.2 Simple Query Examples
+S1: Titles and Start Year
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT ?titleName ?startYear
+WHERE { 
+    ?t a ont:Title ; 
+       ont:primaryTitle ?titleName ; 
+       ont:startYear ?startYear . 
+}
+ORDER BY ?startYear LIMIT 30
+Pattern: Basic triple pattern, ordering
+Result: 30 titles with years
+
+S2: All Genres
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?genreName
+WHERE { 
+    ?g a ont:Genre ; 
+       rdfs:label ?genreName . 
+}
+ORDER BY ?genreName
+Pattern: Class enumeration, rdfs:label usage
+Result: 28 genres (Action, Comedy, Drama, etc.)
+
+S7: Titles with Content Type
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT ?titleName ?contentTypeName
+WHERE {
+    ?t ont:primaryTitle ?titleName ; 
+       ont:isClassifiedAs ?ct .
+    ?ct ont:content_type_name ?contentTypeName .
+}
+ORDER BY ?contentTypeName LIMIT 30
+Pattern: Simple join (1-hop navigation)
+Result: Titles with their types (movie, TV series, short)
+
+4.3 Complex Query Examples
+NT1: Title Profile Summary
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT ?titleName ?contentTypeName
+       (COUNT(DISTINCT ?talent) AS ?talentCount)
+       (GROUP_CONCAT(DISTINCT ?genreName; separator=", ") AS ?genres)
+WHERE {
+    ?title ont:primaryTitle ?titleName ;
+           ont:isClassifiedAs ?ct ; 
+           ont:contains ?participation .
+    ?ct ont:content_type_name ?contentTypeName .
+    ?talent ont:participatesIn ?participation .
+    OPTIONAL { 
+        ?title ont:hasGenre ?genre . 
+        ?genre ont:genreName ?genreName . 
+    }
+}
+GROUP BY ?title ?titleName ?contentTypeName
+ORDER BY DESC(?talentCount) LIMIT 15
+Features demonstrated:
+
+COUNT(DISTINCT ...) - Aggregation
+GROUP_CONCAT - String concatenation
+Multi-hop joins (Title → Participation → Talent)
+OPTIONAL patterns
+GROUP BY with multiple variables
+ORDER BY DESC
+
+Use case: "Which titles have the most cast and crew?"
+Sample result:
+titleName         | contentTypeName | talentCount | genres
+The Avengers      | movie           | 47          | Action, Sci-Fi, Adventure
+Inception         | movie           | 32          | Thriller, Sci-Fi
+
+NT2: Versatile Talents
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT ?talentName 
+       (COUNT(?roleName) AS ?roleCount)
+       (GROUP_CONCAT(?roleName; separator=", ") AS ?roles)
+WHERE {
+    ?talent ont:talentName ?talentName ;
+            ont:participatesIn ?participation .
+    ?participation ont:plays ?role .
+    ?role ont:roleName ?roleName .
+}
+GROUP BY ?talent ?talentName
+HAVING (COUNT(?roleName) > 2)
+ORDER BY DESC(?roleCount) LIMIT 15
+Features demonstrated:
+
+HAVING clause (post-aggregation filter)
+COUNT on property paths
+GROUP_CONCAT for string lists
+
+Use case: "Who are the most versatile actors (multiple roles)?"
+Sample result:
+talentName      | roleCount | roles
+Tom Hanks       | 8         | Forrest Gump, Woody, Captain Miller, ...
+Meryl Streep    | 6         | Miranda Priestly, Margaret Thatcher, ...
+
+NT5: Genre × Content Type Distribution
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT ?genreName 
+       (COUNT(DISTINCT ?title) AS ?titleCount)
+       (GROUP_CONCAT(DISTINCT ?contentTypeName; separator=", ") AS ?contentTypes)
+WHERE {
+    ?title ont:hasGenre ?genre ; 
+           ont:isClassifiedAs ?ct .
+    ?genre ont:genreName ?genreName .
+    ?ct ont:content_type_name ?contentTypeName .
+}
+GROUP BY ?genre ?genreName
+ORDER BY DESC(?titleCount)
+Features demonstrated:
+
+Multiple DISTINCT aggregations
+Cross-tabulation (genre × content type)
+Statistical analysis
+
+Use case: "How are genres distributed across media types?"
+Sample result:
+genreName | titleCount | contentTypes
+Drama     | 487        | movie, TV series, short, TV movie
+Comedy    | 312        | movie, TV series
+Action    | 189        | movie, TV series, TV movie
+Insight: Drama spans all content types (versatile), Action mostly in movies
+
+5. REQUEST FLOW
+5.1 End-to-End Query Execution
+Step-by-step for user clicking "Run Query":
+1. Browser (JavaScript)
+javascriptfetch('/query', {
+    method: 'POST',
+    body: JSON.stringify({ sparql: "SELECT..." })
+})
+2. Flask receives request
+python@app.route('/query', methods=['POST'])
+def query():
+    sparql = request.get_json()['sparql']
+3. Flask forwards to Fuseki
+pythonresponse = requests.post(
+    'http://localhost:3030/audiovisual/sparql',
+    data={'query': sparql}
+)
+4. Fuseki executes query
+
+Parse SPARQL
+Optimize query plan
+Execute on TDB2 indexes
+Format results as JSON
+
+5. Fuseki returns results
+json{
+  "head": {
+    "vars": ["titleName", "startYear"]
+  },
+  "results": {
+    "bindings": [
+      {
+        "titleName": {"type": "literal", "value": "Inception"},
+        "startYear": {"type": "literal", "value": "2010"}
+      }
+    ]
+  }
+}
+6. Flask formats response
+pythonreturn jsonify({
+    'vars': ['titleName', 'startYear'],
+    'rows': [
+        {'titleName': 'Inception', 'startYear': '2010'}
+    ],
+    'count': 1
+})
+7. Browser renders table
+javascriptbuildResultTable(data.vars, data.rows)
+Total latency: 50-500ms depending on query complexity
+
+5.2 Error Handling Flow
+Scenario 1: Invalid SPARQL syntax
+User query:
+sparqlSELECT ?title WHERE { ?title ont:primaryTitle }  # Missing ?o
+Flow:
+
+Flask → Fuseki (forwards query)
+Fuseki → Parse error (HTTP 400)
+Flask → Catches error, extracts message
+Browser → Shows: "SPARQL syntax error: Expected object after predicate"
+
+
+Scenario 2: Fuseki offline
+Flow:
+
+Flask → requests.post(...)
+Connection refused
+Flask → except requests.exceptions.ConnectionError
+Browser → Shows: "Cannot connect to Fuseki. Is it running?"
+
+
+Scenario 3: Query timeout
+Flow:
+
+Flask → requests.post(..., timeout=30)
+30 seconds pass, no response
+Flask → except requests.exceptions.Timeout
+Browser → Shows: "Query timeout (>30s). Try simplifying the query."
+
+
+6. POTENTIAL QUESTIONS & ANSWERS
+Q1: "Why use Flask instead of just accessing Fuseki directly?"
+Answer:
+Flask adds value:
+
+User interface: Fuseki has admin UI, not query interface for end users
+Query templates: Predefined queries for common use cases
+Error handling: User-friendly messages vs raw SPARQL errors
+Analytics: /stats endpoint aggregates data
+Monitoring: /health for ops teams
+Future extensibility: Can add authentication, caching, rate limiting
+
+Direct Fuseki access:
+bashcurl -X POST http://localhost:3030/audiovisual/sparql \
+     --data 'query=SELECT * WHERE { ?s ?p ?o } LIMIT 10'
+Works, but:
+
+No UI
+Raw JSON output
+No error handling
+No templates
+Not user-friendly
+
+Flask wraps Fuseki to make it accessible to non-technical users
+
+Q2: "What if Fuseki crashes during a query?"
+Answer:
+Handled by Flask error handling:
+pythontry:
+    response = requests.post(...)
+except requests.exceptions.ConnectionError:
+    return jsonify({'error': 'Fuseki unreachable'}), 503
+User sees: "Cannot connect to Fuseki. Is it running?"
+Recovery:
+
+Restart Fuseki: fuseki-server.bat --loc=fuseki-data /audiovisual
+Data persists (TDB2 on disk)
+No data loss
+System recovers automatically
+
+For production: Add:
+
+Auto-restart: Systemd or Windows Service
+Load balancing: Multiple Fuseki instances
+Monitoring: Prometheus alerts on downtime
+
+
+Q3: "How do you handle concurrent users?"
+Answer:
+Current setup (demo):
+
+Flask: Single-threaded dev server
+Fuseki: Multi-threaded (handles concurrency well)
+
+Limitation: Flask dev server → ~10 concurrent users max
+Production solution:
+bash# Use production WSGI server
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+4 worker processes
+Handles 100+ concurrent users
+Load balancing across workers
+
+Fuseki: Already production-ready
+
+Thread pool for queries
+Lock-free reads (TDB2)
+Handles hundreds of concurrent queries
+
+
+Q4: "What's the difference between GET /stats and running a COUNT query manually?"
+Answer:
+Manual approach:
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+SELECT (COUNT(*) AS ?count) WHERE { ?s a ont:Title }
+
+User must write SPARQL
+One metric at a time
+Must aggregate multiple queries
+
+GET /stats:
+json{
+  "titles": 1250,
+  "talents": 845,
+  "genres": 28,
+  "triples": 9957
+}
+
+No SPARQL knowledge needed
+All metrics in one request
+Cacheable (future optimization)
+Consistent format for monitoring tools
+
+Use cases:
+
+Dashboard: Auto-refresh every 60s
+Monitoring: Alert if triples < expected
+API consumers: Machine-readable stats
+
+
+Q5: "How would you add caching to improve performance?"
+Answer:
+Problem: Same query executed repeatedly → wasted computation
+Solution 1: Flask-side caching
+pythonfrom flask_caching import Cache
+
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
+@app.route('/query', methods=['POST'])
+@cache.cached(timeout=300, query_string=True)  # 5min cache
+def query():
+    # ... existing code ...
+Solution 2: Result caching
+pythonimport hashlib
+
+query_cache = {}
+
+def execute_query(sparql):
+    # Hash query for cache key
+    cache_key = hashlib.md5(sparql.encode()).hexdigest()
+    
+    if cache_key in query_cache:
+        return query_cache[cache_key]  # Cache hit
+    
+    # Execute query
+    result = requests.post(...)
+    
+    # Store in cache
+    query_cache[cache_key] = result
+    
+    return result
+Trade-offs:
+
+✅ Faster response for repeated queries
+✅ Reduced load on Fuseki
+❌ Stale data if RDF updates
+❌ Memory usage for cache
+
+For our demo: Not needed (queries fast enough, data static)
+
+Q6: "What SPARQL 1.1 features are you NOT using?"
+Answer:
+Used:
+
+SELECT, WHERE, OPTIONAL
+COUNT, GROUP_CONCAT, DISTINCT
+GROUP BY, HAVING, ORDER BY
+FILTER, LIMIT
+Multi-hop property paths
+
+Not used (but available):
+
+CONSTRUCT: Build new RDF graphs
+ASK: Boolean queries (does pattern exist?)
+DESCRIBE: Get all info about resource
+UNION: Combine alternative patterns
+MINUS: Exclude patterns
+BIND: Assign variables
+VALUES: Inline data
+Property paths: +, *, / operators
+Federated queries: Query multiple endpoints
+UPDATE: INSERT/DELETE data
+
+Could add:
+CONSTRUCT example:
+sparqlCONSTRUCT {
+    ?title ont:summary ?summary .
+}
+WHERE {
+    ?title ont:primaryTitle ?name ;
+           ont:hasGenre ?genre .
+    BIND(CONCAT(?name, " (", ?genre, ")") AS ?summary)
+}
+Generates new triples based on existing data
+
+Q7: "How do you ensure the Flask app and Fuseki stay in sync?"
+Answer:
+Synchronization points:
+1. Namespace consistency:
+python# Flask app.py
+ONT_PREFIX = "https://khalilankri.github.io/audiovisual-ontology/1.0#"
+
+# All queries use this prefix
+PREFIX_DECLARATION = f"PREFIX ont: <{ONT_PREFIX}>"
+2. Health check:
+python@app.route('/health')
+def health():
+    # Test Fuseki connectivity
+    response = requests.get('http://localhost:3030/$/ping')
+    # ...
+Ensures Fuseki is reachable before accepting queries
+3. Startup validation:
+pythonif __name__ == '__main__':
+    # Test Fuseki on startup
+    try:
+        requests.get('http://localhost:3030/$/ping', timeout=5)
+        print("✅ Connected to Fuseki")
+    except:
+        print("❌ Fuseki not reachable!")
+        sys.exit(1)
+    
+    app.run(...)
+4. Configuration management:
+python# config.py
+FUSEKI_HOST = os.getenv('FUSEKI_HOST', 'localhost')
+FUSEKI_PORT = os.getenv('FUSEKI_PORT', 3030)
+DATASET = os.getenv('DATASET', 'audiovisual')
+
+FUSEKI_ENDPOINT = f"http://{FUSEKI_HOST}:{FUSEKI_PORT}/{DATASET}/sparql"
+Environment variables allow easy deployment
+
+Q8: "What would you change for production deployment?"
+Answer:
+Current (demo):
+
+Flask dev server (single-threaded)
+Fuseki in-memory/TDB2 local
+No authentication
+No HTTPS
+No monitoring
+No backups
+
+Production changes:
+1. Flask:
+bash# Use production WSGI server
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+# Or
+uwsgi --http :5000 --wsgi-file app.py --callable app --processes 4
+2. Fuseki:
+
+Persistent storage: TDB2 on disk (already doing this!)
+Backups: Regular snapshots of fuseki-data/
+Monitoring: Prometheus + Grafana
+Reverse proxy: Nginx for load balancing
+
+3. Security:
+python# Add authentication
+from flask_httpauth import HTTPBasicAuth
+auth = HTTPBasicAuth()
+
+@auth.verify_password
+def verify_password(username, password):
+    # Check credentials
+    # ...
+
+@app.route('/query', methods=['POST'])
+@auth.login_required
+def query():
+    # ...
+4. HTTPS:
+nginxserver {
+    listen 443 ssl;
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    location / {
+        proxy_pass http://localhost:5000;
+    }
+}
+5. Rate limiting:
+pythonfrom flask_limiter import Limiter
+
+limiter = Limiter(app, key_func=get_remote_address)
+
+@app.route('/query', methods=['POST'])
+@limiter.limit("10 per minute")
+def query():
+    # ...
+6. Logging:
+pythonimport logging
+
+logging.basicConfig(
+    filename='app.log',
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s'
+)
+
+@app.route('/query', methods=['POST'])
+def query():
+    logging.info(f"Query from {request.remote_addr}")
+    # ...
+
+7. LIVE DEMO PREPARATION
+7.1 Pre-Demo Checklist
+Before presentation:
+✅ Start Fuseki
+powershellcd apache-jena-fuseki-6.0.0
+fuseki-server.bat --loc=fuseki-data /audiovisual
+Verify: http://localhost:3030 shows admin UI
+✅ Verify data loaded
+sparqlSELECT (COUNT(*) AS ?triples) WHERE { ?s ?p ?o }
+Expected: ~9,957 triples
+✅ Start Flask
+powershellpython app.py
+Verify: http://localhost:5000 shows query interface
+✅ Test simple query
+Select "S2: All Genres" → Execute → Should show 28 genres
+✅ Test complex query
+Select "NT1: Title Profile Summary" → Execute → Should show titles with talent counts
+✅ Test error handling
+Type invalid SPARQL → Should show error message
+✅ Test /stats endpoint
+Go to http://localhost:5000/stats → Should show JSON with counts
+✅ Prepare backup screenshots
+In case live demo fails, have screenshots of:
+
+Query interface
+Simple query results
+Complex query results
+Stats endpoint
+
+
+7.2 Demo Script
+Part 1: System Overview (30 seconds)
+
+Show architecture diagram
+"We have Flask on port 5000 providing UI, Fuseki on port 3030 providing SPARQL endpoint"
+"Let's see it in action"
+
+Part 2: Simple Query (1 minute)
+
+Navigate to http://localhost:5000
+Select "S2: All Genres" from dropdown
+Show query populates in editor
+Click "Run Query"
+Show results table: 28 genres
+Point out: "Notice human-readable labels - that's rdfs:label in action"
+
+Part 3: Complex Query (2 minutes)
+
+Select "NT1: Title Profile Summary"
+Show query in editor
+Explain: "This uses COUNT aggregation, GROUP_CONCAT, multi-hop joins"
+Click "Run Query"
+Show results: titles with talent counts and genres
+Point out: "See 'The Avengers' has 47 people involved - actors, directors, crew"
+
+Part 4: Custom Query (1 minute)
+
+Clear editor
+Type simple query:
+
+sparqlPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?label WHERE {
+  ?g a ont:Genre ;
+     rdfs:label ?label .
+} LIMIT 5
+
+Show it works
+"Can write any SPARQL query, not just predefined"
+
+Part 5: Features (1 minute)
+
+Open new tab: http://localhost:5000/stats
+Show JSON output: "Analytics endpoint for monitoring"
+Open: http://localhost:3030
+"This is Fuseki admin - can manage datasets, execute queries directly"
+
+Total demo time: 5-6 minutes
+
+7.3 Backup Plans
+If Fuseki crashes:
+
+"Let me show you the query results in my backup screenshot"
+Explain what would happen if it were working
+
+If Flask errors:
+
+Switch to Fuseki UI directly
+Execute query there
+"Same SPARQL, different interface"
+
+If network issues:
+
+Have screenshots ready
+Walk through code instead of live demo
+
+If professor asks unexpected question:
+
+"That's a great question - let me pull up the relevant code/slide"
+Don't improvise - refer to documentation
+
+
+8. KEY TAKEAWAYS FOR DEFENSE
+8.1 Section 3 (Mappings)
+What you did:
+
+Created 12 R2RML TriplesMaps
+Used parent triples maps for referential integrity
+Added rdfs:label to all entities
+Generated ~10,000 triples from database
+
+Why it matters:
+
+W3C standard approach
+Professional data quality
+Repeatable process
+Industry best practices
+
+Be ready to explain:
+
+Why parent triples maps vs templates
+How composite IRIs ensure uniqueness
+NULL handling in joins
+Namespace architecture decisions
+
+
+8.2 Section 4 (Demonstrator)
+What you did:
+
+Built two-tier architecture (Flask + Fuseki)
+Implemented 13 SPARQL queries
+Created web UI and RESTful API
+Used TDB2 persistent storage
+
+Why it matters:
+
+Real SPARQL endpoint (not naïve wrapper)
+Production-ready architecture
+Standards-compliant (W3C SPARQL 1.1)
+Demonstrates semantic web understanding
+
+Be ready to explain:
+
+Why Fuseki vs RDFLib
+How Flask adds value
+Query complexity progression
+Error handling approach
+
+
+8.3 Most Likely Questions
+Top 10 questions to prepare for:
+
+"Why did you choose R2RML over custom code?"
+"Explain parent triples maps vs direct templates"
+"How do you handle NULL foreign keys?"
+"Why separate ontology and data namespaces?"
+"How does the Flask-Fuseki architecture work?"
+"What SPARQL 1.1 features did you use?"
+"How would you scale this to millions of triples?"
+"What happens if the database schema changes?"
+"Why TDB2 instead of in-memory?"
+"How do you ensure referential integrity?"
+

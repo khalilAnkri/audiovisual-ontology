@@ -2,7 +2,13 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 1 :\r\n\r\nThis query builds a **complete profile for each title** in a single row. It simultaneously traverses three separate branches of the ontology from the same `?title` node:\r\n\r\n- The `isClassifiedAs` link to retrieve the content type\r\n- The `contains → participatesIn` chain to count how many talents were involved\r\n- The `hasGenre` link to list all genres associated with the title\r\n\r\n\r\nThe combination of two independent `COUNT(DISTINCT)` aggregations on the same query makes this non-trivial. The use of `OPTIONAL` for genres is also semantically important — it ensures titles with no genre assigned still appear in the results rather than being silently dropped. This query validates the core hub structure of the ontology, where `Title` acts as the central node connecting content type, participation, and genre simultaneously.",
+    "value": "# AudiovisualOntology — SPARQL Notebook\r\n\r\n> **Generative AI disclosure.** The descriptive markdown blocks introducing each query (the textual rationale, the breakdown of the SPARQL features used, the discussion of the results) were drafted by an LLM (Claude Opus 4.7) on the basis of the queries we wrote ourselves; we then checked the accuracy of the text generated ourselves to ensure this corresponds actually to the true goal of the query described. \r\nThe SPARQL code itself is hand-written (by Mohamed-Khalil Ankri) and was tested against our Fuseki endpoint. This disclosure is repeated in the report.\r\n\r\n---",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 1: (NT1)\r\n\r\nThis query builds a **complete profile for each title** in a single row. It simultaneously traverses three separate branches of the ontology from the same `?title` node:\r\n\r\n- The `isClassifiedAs` link to retrieve the content type\r\n- The `contains → participatesIn` chain to count how many talents were involved\r\n- The `hasGenre` link to list all genres associated with the title\r\n\r\n\r\nThe combination of two independent `COUNT(DISTINCT)` aggregations on the same query makes this non-trivial. \r\nThe use of `OPTIONAL` for genres is also semantically important. It ensures titles with no genre assigned still appear in the results rather than being silently dropped. This query validates the core hub structure of the ontology, where `Title` acts as the central node connecting content type, participation, and genre simultaneously.",
     "metadata": {}
   },
   {
@@ -14,7 +20,7 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 2 :\r\nThis query identifies **multi-role talents** — individuals who held more than two distinct roles across their participations, such as someone who was simultaneously actor, director, and producer on the same title.\r\n\r\n\r\nIt exploits the **reification pattern** at the heart of the ontology. The `Participation` bridge class exists precisely to allow a single talent to hold multiple roles on the same title, and this query is the direct proof that the pattern works correctly. It traverses the `Talent → Participation → Role` chain and applies a `HAVING` filter on the aggregated count to keep only the most versatile individuals, demonstrating that the junction between `talent_role` and `title_principal` was mapped correctly.\r\n",
+    "value": "## Query 2: (NT2)\r\nThis query identifies **multi-role talents**, i.e. individuals who held more than two distinct roles across their participations, such as someone who was simultaneously actor, director, and producer on the same title.\r\n\r\n\r\nIt exploits the **reification pattern** at the heart of the ontology. The `Participation` bridge class exists precisely to allow a single talent to hold multiple roles on the same title, and this query is the direct proof that the pattern works correctly. It traverses the `Talent → Participation → Role` chain and applies a `HAVING` filter on the aggregated count to keep only the most versatile individuals, demonstrating that the junction between `talent_role` and `title_principal` was mapped correctly.\r\n",
     "metadata": {}
   },
   {
@@ -26,7 +32,7 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 3 :\r\nThis query traverses the full **alternative title chain**: `Title → AlternativeTitle → Region` with an optional extension to `TitleType`. It reveals that the same title can have multiple localised names across different countries and languages — for example \"Episode #1.1\" appears in Japanese, German, Spanish, French, Portuguese, and Italian.\r\n\r\n\r\nIt validates three junction mappings at once: `isAka`, `isFrom`, and `hasType`. The `OPTIONAL` clause for `?titleTypeName` is semantically meaningful — not all alternative titles have a type assigned, and making it required would silently drop valid rows. This query demonstrates the full depth of the `AlternativeTitle` subgraph and confirms that nullable foreign keys (`region_id`, `language_id`) in the original SQL schema were handled correctly during mapping.",
+    "value": "## Query 3: (NT3)\r\nThis query traverses the full **alternative title chain**: `Title → AlternativeTitle → Region` with an optional extension to `TitleType`. It reveals that the same title can have multiple localised names across different countries and languages — for example \"Episode #1.1\" appears in Japanese, German, Spanish, French, Portuguese, and Italian.\r\n\r\n\r\nIt validates three junction mappings at once: `isAka`, `isFrom`, and `hasType`. The `OPTIONAL` clause for `?titleTypeName` is semantically meaningful; not all alternative titles have a type assigned, and making it required would silently drop valid rows. This query demonstrates the full depth of the `AlternativeTitle` subgraph and confirms that nullable foreign keys (`region_id`, `language_id`) in the original SQL schema were handled correctly during mapping.",
     "metadata": {}
   },
   {
@@ -44,7 +50,7 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 4 :\r\nThis query produces a **cross-tabulation of roles against categories**, counting how many distinct talents appear in each combination.\r\n\r\n\r\nThe interesting result is that roles and categories are not always identical — for example \"producer\" as a role can appear under the \"actor\" category. This reveals that the `role` table (sourced from `talent_role`) and the `category` table (sourced from `title_principal`) capture two **different dimensions** of a talent's contribution. This distinction is a deliberate modelling choice in the ontology: `ont:as` links a participation to its broad industry category, while `ont:plays` links it to the specific credited role. This query is the clearest demonstration of that distinction, traversing both `Participation → Role` and `Participation → Category` simultaneously.",
+    "value": "## Query 4: (NT4)\r\nThis query produces a **cross-tabulation of roles against categories**, counting how many distinct talents appear in each combination.\r\n\r\n\r\nThe interesting result is that roles and categories are not always identical. For example, \"producer\" as a role can appear under the \"actor\" category. This reveals that the `role` table (sourced from `talent_role`) and the `category` table (sourced from `title_principal`) capture two **different dimensions** of a talent's contribution. This distinction is a deliberate modelling choice in the ontology: `ont:as` links a participation to its broad industry category, while `ont:plays` links it to the specific credited role. This query is the clearest demonstration of that distinction, traversing both `Participation → Role` and `Participation → Category` simultaneously.",
     "metadata": {}
   },
   {
@@ -56,13 +62,61 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 5 :\r\nThis query analyses **which genres appear across which content types**, joining three classes in one traversal: `Genre ← Title → ContentType`. It reveals structural patterns in the data — for example Drama appears across TV Episodes, movies, shorts, and TV Movies, while Crime only appears in TV Episodes in this dataset.\r\n\r\n\r\nThe `GROUP_CONCAT(DISTINCT ?contentTypeName)` is what elevates this beyond a simple count. Instead of producing one row per genre-contentType combination, it collapses the content type dimension into a readable list per genre, giving a richer analytical view in a single result set. It also joins two independent dictionary classes (`Genre` and `ContentType`) through the central `Title` node, confirming that both the `title_genre` and `title` mappings are correctly linked.",
+    "value": "## Query 5: (NT5)\r\nThis query analyses **which genres appear across which content types**, joining three classes in one traversal: `Genre ← Title → ContentType`. It reveals structural patterns in the data. For example, \"Drama\" appears across TV Episodes, movies, shorts, and TV Movies, while \"Crime\" only appears in TV Episodes in this dataset.\r\n\r\n\r\nThe `GROUP_CONCAT(DISTINCT ?contentTypeName)` is what elevates this beyond a simple count. Instead of producing one row per genre-contentType combination, it collapses the content type dimension into a readable list per genre, giving a richer analytical view in a single result set. It also joins two independent dictionary classes (`Genre` and `ContentType`) through the central `Title` node, confirming that both the `title_genre` and `title` mappings are correctly linked.",
     "metadata": {}
   },
   {
     "kind": 2,
     "language": "sparql",
-    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?genreName \r\n       (COUNT(DISTINCT ?title) AS ?titleCount)\r\n       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=\", \") AS ?contentTypes)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:hasGenre ?genre ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?genre ont:genreName ?genreName .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n}\r\nGROUP BY ?genre ?genreName\r\nORDER BY DESC(?titleCount)\r\nLiMIT 10",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?genreName \r\n       (COUNT(DISTINCT ?title) AS ?titleCount)\r\n       (GROUP_CONCAT(DISTINCT ?contentTypeName ; separator=\", \") AS ?contentTypes)\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:hasGenre ?genre ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?genre ont:genreName ?genreName .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n}\r\nGROUP BY ?genre ?genreName\r\nORDER BY DESC(?titleCount)\r\nLIMIT 10",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 6: (NT6)\r\nMore complex query: co-credits via property path\r\n\r\nThis query lists **pairs of talents that have been credited together on the same Title**. It demonstrates SPARQL **property paths**: from a single `?title` node we navigate `ont:contains` twice (to two distinct Participation instances on the same Title) and then back up through the inverse path `^ont:participatesIn` to reach the two Talents.\r\n\r\nThe `FILTER(STR(?talent1Name) < STR(?talent2Name))` is a classical trick to keep only one ordering of each pair, avoiding both the `(A, A)` self-pairs and the duplicate `(B, A)` rows that the symmetric pattern would otherwise produce. The result is a clean co-credit network limited to the titles in our dataset.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT DISTINCT ?titleName ?talent1Name ?talent2Name\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:contains ?p1, ?p2 .\r\n    ?t1 ont:participatesIn ?p1 ; ont:talentName ?talent1Name .\r\n    ?t2 ont:participatesIn ?p2 ; ont:talentName ?talent2Name .\r\n    FILTER(STR(?talent1Name) < STR(?talent2Name))\r\n}\r\nORDER BY ?titleName ?talent1Name\r\nLIMIT 30",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 7: \r\nMore complex query: top titles per content type\r\n\r\nThis query demonstrates **nested SELECT**, the SPARQL equivalent of a SQL sub-query. The inner `SELECT` aggregates the number of distinct talents per title and per content type; the outer `SELECT` then orders the resulting rows so that, for each content type, the titles with the most talents appear first.\r\n\r\nThe nested-select pattern is the canonical way to express \"top-K per group\" in SPARQL, because grouping and ordering must be applied in two distinct passes (aggregation first, ranking second). Combined with `LIMIT`, this produces a compact dashboard-style breakdown of the largest productions per content type.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?contentTypeName ?titleName ?talentCount\r\nWHERE {\r\n    {\r\n        SELECT ?title ?titleName ?contentTypeName (COUNT(DISTINCT ?talent) AS ?talentCount)\r\n        WHERE {\r\n            ?title a ont:Title ;\r\n                   ont:primaryTitle ?titleName ;\r\n                   ont:isClassifiedAs ?ct ;\r\n                   ont:contains ?participation .\r\n            ?ct ont:content_type_name ?contentTypeName .\r\n            ?talent ont:participatesIn ?participation .\r\n        }\r\n        GROUP BY ?title ?titleName ?contentTypeName\r\n    }\r\n}\r\nORDER BY ?contentTypeName DESC(?talentCount)\r\nLIMIT 30",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "## Query 8: \r\nMore complex query (negation as failure): titles without a genre\r\n\r\nThis query lists Titles that have **no** `ont:hasGenre` triple attached. It demonstrates **negation as failure** in SPARQL via the `FILTER NOT EXISTS` construct: the query keeps a result row only if the inner graph pattern matches \\*no\\* solution.\r\n\r\nThis is semantically very different from the relational `NOT IN`: it is a pure pattern check that operates over the current RDF graph, and it returns Titles that simply lack the relation. The result is useful as a data-quality probe (we expect very few or no titles in this set, since `hasGenre` is the most consistently mapped property) and as a typical example of an open-world question that a knowledge graph can answer naturally.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "PREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\n\r\nSELECT ?titleName ?contentTypeName\r\nWHERE {\r\n    ?title a ont:Title ;\r\n           ont:primaryTitle ?titleName ;\r\n           ont:isClassifiedAs ?ct .\r\n    ?ct ont:content_type_name ?contentTypeName .\r\n    FILTER NOT EXISTS { ?title ont:hasGenre ?g }\r\n}\r\nORDER BY ?titleName\r\nLIMIT 30",
+    "metadata": {}
+  },
+  {
+    "kind": 1,
+    "language": "markdown",
+    "value": "---\r\n\r\n## Further work — Federated query draft (not executed)\r\n\r\nThe following federated query was designed to enrich our local `Talent` individuals with their Wikidata label and declared occupations, joining the two graphs via the IMDb identifier property `wdt:P345`. **It is included here for documentation only**: the VS Code SPARQL Notebook extension used during development does not support `SERVICE`, so the query was never validated against a live endpoint. It is expected to run on any ARQ-class endpoint (Apache Jena Fuseki, Blazegraph, etc.) and is discussed in the *Further Work* section of the report.",
+    "metadata": {}
+  },
+  {
+    "kind": 2,
+    "language": "sparql",
+    "value": "# NOT EXECUTED: requires a SPARQL client that supports SERVICE (e.g. Fuseki, not the VS Code notebook).\r\nPREFIX ont: <https://khalilankri.github.io/audiovisual-ontology/1.0#>\r\nPREFIX wdt: <http://www.wikidata.org/prop/direct/>\r\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\r\n\r\nSELECT ?talentName ?wikidataLabel ?occupationLabel\r\nWHERE {\r\n    ?talent a ont:Talent ;\r\n            ont:talentName ?talentName .\r\n    BIND(REPLACE(STR(?talent), \"^.*/talent/\", \"\") AS ?imdbId)\r\n    FILTER(STRSTARTS(?imdbId, \"nm\"))\r\n\r\n    SERVICE <https://query.wikidata.org/sparql> {\r\n        ?wd wdt:P345 ?imdbId ;\r\n            rdfs:label ?wikidataLabel ;\r\n            wdt:P106 ?occupation .\r\n        ?occupation rdfs:label ?occupationLabel .\r\n        FILTER(LANG(?wikidataLabel) = \"en\")\r\n        FILTER(LANG(?occupationLabel) = \"en\")\r\n    }\r\n}\r\nLIMIT 10",
     "metadata": {}
   }
 ]

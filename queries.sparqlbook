@@ -86,7 +86,7 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 7: \r\nMore complex query: top titles per content type\r\n\r\nThis query demonstrates **nested SELECT**, the SPARQL equivalent of a SQL sub-query. The inner `SELECT` aggregates the number of distinct talents per title and per content type; the outer `SELECT` then orders the resulting rows so that, for each content type, the titles with the most talents appear first.\r\n\r\nThe nested-select pattern is the canonical way to express \"top-K per group\" in SPARQL, because grouping and ordering must be applied in two distinct passes (aggregation first, ranking second). Combined with `LIMIT`, this produces a compact dashboard-style breakdown of the largest productions per content type.",
+    "value": "## Query 7: (NT7)\r\nMore complex query: top titles per content type\r\n\r\nThis query demonstrates **nested SELECT**, the SPARQL equivalent of a SQL sub-query. The inner `SELECT` aggregates the number of distinct talents per title and per content type; the outer `SELECT` then orders the resulting rows so that, for each content type, the titles with the most talents appear first.\r\n\r\nThe nested-select pattern is the canonical way to express \"top-K per group\" in SPARQL, because grouping and ordering must be applied in two distinct passes (aggregation first, ranking second). Combined with `LIMIT`, this produces a compact dashboard-style breakdown of the largest productions per content type.",
     "metadata": {}
   },
   {
@@ -98,7 +98,7 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "## Query 8: \r\nMore complex query (negation as failure): titles without a genre\r\n\r\nThis query lists Titles that have **no** `ont:hasGenre` triple attached. It demonstrates **negation as failure** in SPARQL via the `FILTER NOT EXISTS` construct: the query keeps a result row only if the inner graph pattern matches \\*no\\* solution.\r\n\r\nThis is semantically very different from the relational `NOT IN`: it is a pure pattern check that operates over the current RDF graph, and it returns Titles that simply lack the relation. The result is useful as a data-quality probe (we expect very few or no titles in this set, since `hasGenre` is the most consistently mapped property) and as a typical example of an open-world question that a knowledge graph can answer naturally.",
+    "value": "## Query 8: (NT8)\r\nMore complex query (negation as failure): titles without a genre\r\n\r\nThis query lists Titles that have **no** `ont:hasGenre` triple attached. It demonstrates **negation as failure** in SPARQL via the `FILTER NOT EXISTS` construct: the query keeps a result row only if the inner graph pattern matches \\*no\\* solution.\r\n\r\nThis is semantically very different from the relational `NOT IN`: it is a pure pattern check that operates over the current RDF graph, and it returns Titles that simply lack the relation. The result is useful as a data-quality probe (we expect very few or no titles in this set, since `hasGenre` is the most consistently mapped property) and as a typical example of an open-world question that a knowledge graph can answer naturally.",
     "metadata": {}
   },
   {
@@ -110,7 +110,7 @@
   {
     "kind": 1,
     "language": "markdown",
-    "value": "---\r\n\r\n## Further work — Federated query draft (not executed)\r\n\r\nThe following federated query was designed to enrich our local `Talent` individuals with their Wikidata label and declared occupations, joining the two graphs via the IMDb identifier property `wdt:P345`. **It is included here for documentation only**: the VS Code SPARQL Notebook extension used during development does not support `SERVICE`, so the query was never validated against a live endpoint. It is expected to run on any ARQ-class endpoint (Apache Jena Fuseki, Blazegraph, etc.) and is discussed in the *Further Work* section of the report.",
+    "value": "---\r\n\r\n## Further work — Federated query draft (NT9, not executed)\r\n\r\nThe following federated query was designed to enrich our local `Talent` individuals with their Wikidata label and declared occupations, joining the two graphs via the IMDb identifier property `wdt:P345`. **It is included here for documentation only**: the VS Code SPARQL Notebook extension used during development does not support `SERVICE`, so the query was never validated against a live endpoint. It is expected to run on any ARQ-class endpoint (Apache Jena Fuseki, Blazegraph, etc.) and is discussed in the *Further Work* section of the report.",
     "metadata": {}
   },
   {

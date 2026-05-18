@@ -1,0 +1,9 @@
+<h2 id="desc" class="list">AudiovisualOntology: Description <span class="backlink"> back to <a href="#toc">ToC</a></span></h2>
+
+<span class="markdown">The ontology models the audiovisual domain around three families of classes: works (`Title` and its `AlternativeTitle` variants), people involved in their production (`Talent`), and the contextual classes that classify or qualify them (`Genre`, `ContentType`, `Region`, `TitleType`, `Role`, `Category`).
+
+The relationship between a talent and a title is **not** a direct binary link. It is reified through the `Participation` class, which carries the talent's `Role` (the character or position played) and `Category` (the professional capacity, e.g. *actor*, *director*, *writer*), together with optional ordering and job-description data properties. This pattern preserves the full semantics of the IMDb `title_principal` relation and lets the same talent appear in the same title under several distinct capacities without ambiguity.
+
+Titles are connected to their localisation variants through `AlternativeTitle`, which carries a `Region` (where the variant is used) and a `TitleType` (the nature of the variant: original, working title, abbreviation, etc.). Each `AlternativeTitle` therefore documents *which* variant of *which* title is used *in which* region and under *which* type.
+
+All ten domain classes are declared pairwise disjoint and every individual carries an `rdfs:label` for human-readable display. The full list of classes and properties is given in the [Overview](#overv) section, with formal axioms in the [Cross Reference](#crossref) section below.</span>

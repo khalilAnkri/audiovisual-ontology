@@ -1,0 +1,406 @@
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://purl.org/dc/elements/1.1/creator> "ANKRI Mohamed-Khalil"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://purl.org/dc/elements/1.1/creator> "MICHON Charlotte"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://purl.org/dc/elements/1.1/creator> "PAULIS Antoine"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://www.w3.org/2000/01/rdf-schema#comment> "This ontology is about audiovisual domain, based on IMDb database and adapted for generic shared knowledge. It aims to be deployed to combine a catalogue multi-critera search tool and an analysis tool."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://www.w3.org/2000/01/rdf-schema#label> "AudiovisualOntology"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0> <http://www.w3.org/2002/07/owl#versionInfo> "1"@en .
+# 
+# 
+# #################################################################
+# #
+# #    Annotation properties
+# #
+# #################################################################
+# 
+# 
+# http://purl.org/dc/elements/1.1/creator
+<http://purl.org/dc/elements/1.1/creator> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#AnnotationProperty> .
+# 
+# http://purl.org/dc/elements/1.1/publisher
+<http://purl.org/dc/elements/1.1/publisher> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#AnnotationProperty> .
+<http://purl.org/dc/elements/1.1/publisher> <http://www.w3.org/2000/01/rdf-schema#comment> "Publisher metadata"@en .
+# 
+# http://purl.org/dc/terms/license
+<http://purl.org/dc/terms/license> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#AnnotationProperty> .
+<http://purl.org/dc/terms/license> <http://www.w3.org/2000/01/rdf-schema#comment> "License metadata"@en .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    Object Properties
+# #
+# #################################################################
+# 
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#as
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#Category> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/2000/01/rdf-schema#comment> "Associates a participation event with a category describing the nature of the contribution."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/2000/01/rdf-schema#label> "hasCategory"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#as> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "as (generic name)"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#contains
+<https://khalilankri.github.io/audiovisual-ontology/1.0#contains> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#contains> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#contains> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#contains> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#contains> <http://www.w3.org/2000/01/rdf-schema#comment> "Relates a title to the participation events associated with it."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#contains> <http://www.w3.org/2000/01/rdf-schema#label> "contains"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#Genre> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre> <http://www.w3.org/2000/01/rdf-schema#comment> "Associates a title with one or more genres describing its thematic classification."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre> <http://www.w3.org/2000/01/rdf-schema#label> "hasGenre"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#hasType
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasType> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasType> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasType> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasType> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasType> <http://www.w3.org/2000/01/rdf-schema#comment> "Associates an alternative title with its type, such as original, working title, or international title."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#hasType> <http://www.w3.org/2000/01/rdf-schema#label> "hasTypeTitle"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#isAka
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAka> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAka> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAka> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAka> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAka> <http://www.w3.org/2000/01/rdf-schema#comment> "Associates a title with its alternative titles used in different contexts such as languages or regions."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAka> <http://www.w3.org/2000/01/rdf-schema#label> "hasAlternativeTitle"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs> <http://www.w3.org/2000/01/rdf-schema#comment> "Relates a title to its content type, indicating the format of the content such as movie or TV series."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs> <http://www.w3.org/2000/01/rdf-schema#label> "isClassifiedAs"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#Region> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates the region associated with an alternative title, such as the country where it is used."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/2000/01/rdf-schema#label> "isFromRegion"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "isFrom"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn> <http://www.w3.org/2000/01/rdf-schema#comment> "Links a participation event to the title in which the talent is involved."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn> <http://www.w3.org/2000/01/rdf-schema#label> "participatesIn"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#plays
+<https://khalilankri.github.io/audiovisual-ontology/1.0#plays> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#plays> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topObjectProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#plays> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#plays> <http://www.w3.org/2000/01/rdf-schema#range> <https://khalilankri.github.io/audiovisual-ontology/1.0#Role> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#plays> <http://www.w3.org/2000/01/rdf-schema#comment> "Associates a participation event with the role performed by the talent in a title."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#plays> <http://www.w3.org/2000/01/rdf-schema#label> "plays"@en .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    Data properties
+# #
+# #################################################################
+# 
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes
+<https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes> <http://www.w3.org/2000/01/rdf-schema#comment> "Additional descriptive information associated with an alternative title that is not captured by the other properties."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes> <http://www.w3.org/2000/01/rdf-schema#label> "additionalAttributes"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/2000/01/rdf-schema#comment> "The textual form of an alternative title used for a title in a specific language, region, or context."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/2000/01/rdf-schema#label> "alternativeTitleName"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "akaTitle"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd> <http://www.w3.org/2000/01/rdf-schema#comment> "The ordering or priority assigned to an alternative title among the alternative titles of the same title."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd> <http://www.w3.org/2000/01/rdf-schema#label> "alternativeTitleOrder"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear
+<https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear> <http://www.w3.org/2000/01/rdf-schema#comment> "The year in which a talent was born."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear> <http://www.w3.org/2000/01/rdf-schema#label> "birthYear"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName
+<https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Category> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a category describing the nature of a participation or contribution."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName> <http://www.w3.org/2000/01/rdf-schema#label> "categoryName"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name
+<https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a content type describing the format of a title, such as movie, short, or TV series."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name> <http://www.w3.org/2000/01/rdf-schema#label> "contentTypeName"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear
+<https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear> <http://www.w3.org/2000/01/rdf-schema#comment> "The year in which a talent died."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear> <http://www.w3.org/2000/01/rdf-schema#label> "deathYear"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#endYear
+<https://khalilankri.github.io/audiovisual-ontology/1.0#endYear> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#endYear> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#endYear> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#endYear> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#endYear> <http://www.w3.org/2000/01/rdf-schema#comment> "The year in which a title ended, for example the ending year of a series."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#endYear> <http://www.w3.org/2000/01/rdf-schema#label> "endYear"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#genreName
+<https://khalilankri.github.io/audiovisual-ontology/1.0#genreName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#genreName> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#genreName> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Genre> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#genreName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#genreName> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a genre used to classify a title, such as drama, comedy, or action."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#genreName> <http://www.w3.org/2000/01/rdf-schema#label> "genreName"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#boolean> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult> <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates whether a title is intended for adult audiences."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult> <http://www.w3.org/2000/01/rdf-schema#label> "isAdult"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#boolean> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle> <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates whether an alternative title is the original title of the associated title.e"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle> <http://www.w3.org/2000/01/rdf-schema#label> "isOriginalTitle"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#job
+<https://khalilankri.github.io/audiovisual-ontology/1.0#job> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#job> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#job> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#job> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#job> <http://www.w3.org/2000/01/rdf-schema#comment> "A textual description of the specific job or function performed by a talent in a participation."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#job> <http://www.w3.org/2000/01/rdf-schema#label> "jobDescription"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle
+<https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle> <http://www.w3.org/2000/01/rdf-schema#comment> "The original title text assigned to a title."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle> <http://www.w3.org/2000/01/rdf-schema#label> "originalTitle"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd> <http://www.w3.org/2000/01/rdf-schema#comment> "The ordering or ranking of a participation within a title, for example to indicate main or secondary contributors."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd> <http://www.w3.org/2000/01/rdf-schema#label> "participationOrder"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle
+<https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle> <http://www.w3.org/2000/01/rdf-schema#comment> "The primary title text used as the main name of a title."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle> <http://www.w3.org/2000/01/rdf-schema#label> "primaryTitle"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#regionName
+<https://khalilankri.github.io/audiovisual-ontology/1.0#regionName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#regionName> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#regionName> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Region> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#regionName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#regionName> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a region associated with an alternative title or distribution context."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#regionName> <http://www.w3.org/2000/01/rdf-schema#label> "regionName"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#roleName
+<https://khalilankri.github.io/audiovisual-ontology/1.0#roleName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#roleName> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#roleName> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Role> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#roleName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#roleName> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a role that a talent may have in relation to a title, such as actor, director, or writer."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#roleName> <http://www.w3.org/2000/01/rdf-schema#label> "roleName"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/2000/01/rdf-schema#comment> "The duration of a title expressed in minutes."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/2000/01/rdf-schema#label> "runtimeInMinutes"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "runtimeMinutes"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#startYear
+<https://khalilankri.github.io/audiovisual-ontology/1.0#startYear> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#startYear> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#startYear> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#startYear> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#integer> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#startYear> <http://www.w3.org/2000/01/rdf-schema#comment> "The year in which a title was first released or started airing."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#startYear> <http://www.w3.org/2000/01/rdf-schema#label> "startYear"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#talentName
+<https://khalilankri.github.io/audiovisual-ontology/1.0#talentName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#talentName> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#talentName> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#talentName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#talentName> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a talent involved in a title, such as an actor, director, or writer."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#talentName> <http://www.w3.org/2000/01/rdf-schema#label> "talentName"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name
+<https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://www.w3.org/2002/07/owl#topDataProperty> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name> <http://www.w3.org/2000/01/rdf-schema#domain> <https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name> <http://www.w3.org/2000/01/rdf-schema#comment> "The name of a tite type"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name> <http://www.w3.org/2000/01/rdf-schema#label> "titleTypeName"@en .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    Classes
+# #
+# #################################################################
+# 
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle
+<https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> <http://www.w3.org/2000/01/rdf-schema#comment> "An alternative title used to refer to a title in different languages, regions, or contexts, possibly including ordering and additional attributes."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> <http://www.w3.org/2000/01/rdf-schema#label> "AlternativeTitle"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "Alternative_title, Title_aka, TitleAka"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Category
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Category> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Category> <http://www.w3.org/2000/01/rdf-schema#comment> "A classification used to categorize the participation of a talent in a title, often describing the nature of their contribution."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Category> <http://www.w3.org/2000/01/rdf-schema#label> "Category"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType
+<https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> <http://www.w3.org/2000/01/rdf-schema#comment> "A classification of a title based on its format or type, such as movie, TV series, or short film."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> <http://www.w3.org/2000/01/rdf-schema#label> "ContentType"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "Content_type"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Genre
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Genre> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Genre> <http://www.w3.org/2000/01/rdf-schema#comment> "A category that describes the thematic or stylistic classification of a title, such as drama, comedy, or action."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Genre> <http://www.w3.org/2000/01/rdf-schema#label> "Genre"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Participation
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> <http://www.w3.org/2000/01/rdf-schema#comment> "A participation event linking a talent to a title with a specific role, possibly including additional attributes such as job description and participation order."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> <http://www.w3.org/2000/01/rdf-schema#label> "Participation"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "Title_principal"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Region
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Region> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Region> <http://www.w3.org/2000/01/rdf-schema#comment> "A geographical area associated with a title or its alternative versions, such as a country or distribution region."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Region> <http://www.w3.org/2000/01/rdf-schema#label> "Region"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Role
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Role> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Role> <http://www.w3.org/2000/01/rdf-schema#comment> "A function or role played by a talent in a title, such as actor, director, or producer."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Role> <http://www.w3.org/2000/01/rdf-schema#label> "Role"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Talent
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> <http://www.w3.org/2000/01/rdf-schema#comment> "A person involved in the creation or participation in a title, such as an actor, director, or writer, described by attributes like name and life dates."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> <http://www.w3.org/2000/01/rdf-schema#label> "Talent"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#Title
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Title> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Title> <http://www.w3.org/2000/01/rdf-schema#comment> "A film, series, or other audiovisual content, characterized by attributes such as title, release year, runtime, and adult content flag."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#Title> <http://www.w3.org/2000/01/rdf-schema#label> "Title"@en .
+# 
+# https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType
+<https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> <http://www.w3.org/2000/01/rdf-schema#comment> "A classification describing the type of a title or alternative title, such as original, working title, or international title."@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> <http://www.w3.org/2000/01/rdf-schema#label> "TitleType"@en .
+<https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> <http://www.w3.org/2000/01/rdf-schema#seeAlso> "Title_type"@en .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    Annotations
+# #
+# #################################################################
+# 
+# 
+<http://purl.org/dc/elements/1.1/creator> <http://www.w3.org/2000/01/rdf-schema#comment> "Authors metadata"@en .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    General axioms
+# #
+# #################################################################
+# 
+# 
+_:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#AllDisjointClasses> .
+_:genid1 <http://www.w3.org/2002/07/owl#members> _:genid11 .
+_:genid11 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid10 .
+_:genid10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid9 .
+_:genid9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid8 .
+_:genid8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid7 .
+_:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid6 .
+_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid5 .
+_:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid4 .
+_:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid3 .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid2 .
+_:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType> .
+_:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Title> .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Talent> .
+_:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Role> .
+_:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Region> .
+_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Participation> .
+_:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Genre> .
+_:genid8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType> .
+_:genid9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#Category> .
+_:genid10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid11 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle> .
+_:genid11 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+# 
+# Generated by the OWL API (version 5.1.18) https://github.com/owlcs/owlapi/

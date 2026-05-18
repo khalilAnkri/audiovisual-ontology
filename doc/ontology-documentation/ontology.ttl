@@ -1,0 +1,411 @@
+@prefix : <https://khalilankri.github.io/audiovisual-ontology/1.0#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <https://khalilankri.github.io/audiovisual-ontology/1.0#> .
+
+<https://khalilankri.github.io/audiovisual-ontology/1.0> rdf:type owl:Ontology ;
+                                                          <http://purl.org/dc/elements/1.1/creator> "ANKRI Mohamed-Khalil"@en ,
+                                                                                                    "MICHON Charlotte"@en ,
+                                                                                                    "PAULIS Antoine"@en ;
+                                                          rdfs:comment "This ontology is about audiovisual domain, based on IMDb database and adapted for generic shared knowledge. It aims to be deployed to combine a catalogue multi-critera search tool and an analysis tool."@en ;
+                                                          rdfs:label "AudiovisualOntology"@en ;
+                                                          owl:versionInfo "1"@en .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://purl.org/dc/elements/1.1/creator
+<http://purl.org/dc/elements/1.1/creator> rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/publisher
+<http://purl.org/dc/elements/1.1/publisher> rdf:type owl:AnnotationProperty ;
+                                            rdfs:comment "Publisher metadata"@en .
+
+
+###  http://purl.org/dc/terms/license
+<http://purl.org/dc/terms/license> rdf:type owl:AnnotationProperty ;
+                                   rdfs:comment "License metadata"@en .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#as
+:as rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf owl:topObjectProperty ;
+    rdfs:domain :Participation ;
+    rdfs:range :Category ;
+    rdfs:comment "Associates a participation event with a category describing the nature of the contribution."@en ;
+    rdfs:label "hasCategory"@en ;
+    rdfs:seeAlso "as (generic name)"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#contains
+:contains rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf owl:topObjectProperty ;
+          rdfs:domain :Title ;
+          rdfs:range :Participation ;
+          rdfs:comment "Relates a title to the participation events associated with it."@en ;
+          rdfs:label "contains"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#hasGenre
+:hasGenre rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf owl:topObjectProperty ;
+          rdfs:domain :Title ;
+          rdfs:range :Genre ;
+          rdfs:comment "Associates a title with one or more genres describing its thematic classification."@en ;
+          rdfs:label "hasGenre"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#hasType
+:hasType rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf owl:topObjectProperty ;
+         rdfs:domain :AlternativeTitle ;
+         rdfs:range :TitleType ;
+         rdfs:comment "Associates an alternative title with its type, such as original, working title, or international title."@en ;
+         rdfs:label "hasTypeTitle"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#isAka
+:isAka rdf:type owl:ObjectProperty ;
+       rdfs:subPropertyOf owl:topObjectProperty ;
+       rdfs:domain :Title ;
+       rdfs:range :AlternativeTitle ;
+       rdfs:comment "Associates a title with its alternative titles used in different contexts such as languages or regions."@en ;
+       rdfs:label "hasAlternativeTitle"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#isClassifiedAs
+:isClassifiedAs rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf owl:topObjectProperty ;
+                rdfs:domain :Title ;
+                rdfs:range :ContentType ;
+                rdfs:comment "Relates a title to its content type, indicating the format of the content such as movie or TV series."@en ;
+                rdfs:label "isClassifiedAs"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#isFrom
+:isFrom rdf:type owl:ObjectProperty ;
+        rdfs:subPropertyOf owl:topObjectProperty ;
+        rdfs:domain :AlternativeTitle ;
+        rdfs:range :Region ;
+        rdfs:comment "Indicates the region associated with an alternative title, such as the country where it is used."@en ;
+        rdfs:label "isFromRegion"@en ;
+        rdfs:seeAlso "isFrom"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#participatesIn
+:participatesIn rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf owl:topObjectProperty ;
+                rdfs:domain :Talent ;
+                rdfs:range :Participation ;
+                rdfs:comment "Links a participation event to the title in which the talent is involved."@en ;
+                rdfs:label "participatesIn"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#plays
+:plays rdf:type owl:ObjectProperty ;
+       rdfs:subPropertyOf owl:topObjectProperty ;
+       rdfs:domain :Participation ;
+       rdfs:range :Role ;
+       rdfs:comment "Associates a participation event with the role performed by the talent in a title."@en ;
+       rdfs:label "plays"@en .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#additionalAttributes
+:additionalAttributes rdf:type owl:DatatypeProperty ;
+                      rdfs:subPropertyOf owl:topDataProperty ;
+                      rdfs:domain :AlternativeTitle ;
+                      rdfs:range xsd:string ;
+                      rdfs:comment "Additional descriptive information associated with an alternative title that is not captured by the other properties."@en ;
+                      rdfs:label "additionalAttributes"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleName
+:alternativeTitleName rdf:type owl:DatatypeProperty ;
+                      rdfs:subPropertyOf owl:topDataProperty ;
+                      rdfs:domain :AlternativeTitle ;
+                      rdfs:range xsd:string ;
+                      rdfs:comment "The textual form of an alternative title used for a title in a specific language, region, or context."@en ;
+                      rdfs:label "alternativeTitleName"@en ;
+                      rdfs:seeAlso "akaTitle"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#alternativeTitleOrd
+:alternativeTitleOrd rdf:type owl:DatatypeProperty ;
+                     rdfs:subPropertyOf owl:topDataProperty ;
+                     rdfs:domain :AlternativeTitle ;
+                     rdfs:range xsd:integer ;
+                     rdfs:comment "The ordering or priority assigned to an alternative title among the alternative titles of the same title."@en ;
+                     rdfs:label "alternativeTitleOrder"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#birthYear
+:birthYear rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty ;
+           rdfs:domain :Talent ;
+           rdfs:range xsd:integer ;
+           rdfs:comment "The year in which a talent was born."@en ;
+           rdfs:label "birthYear"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#categoryName
+:categoryName rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf owl:topDataProperty ;
+              rdfs:domain :Category ;
+              rdfs:range xsd:string ;
+              rdfs:comment "The name of a category describing the nature of a participation or contribution."@en ;
+              rdfs:label "categoryName"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#content_type_name
+:content_type_name rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf owl:topDataProperty ;
+                   rdfs:domain :ContentType ;
+                   rdfs:range xsd:string ;
+                   rdfs:comment "The name of a content type describing the format of a title, such as movie, short, or TV series."@en ;
+                   rdfs:label "contentTypeName"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#deathYear
+:deathYear rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty ;
+           rdfs:domain :Talent ;
+           rdfs:range xsd:integer ;
+           rdfs:comment "The year in which a talent died."@en ;
+           rdfs:label "deathYear"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#endYear
+:endYear rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf owl:topDataProperty ;
+         rdfs:domain :Title ;
+         rdfs:range xsd:integer ;
+         rdfs:comment "The year in which a title ended, for example the ending year of a series."@en ;
+         rdfs:label "endYear"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#genreName
+:genreName rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty ;
+           rdfs:domain :Genre ;
+           rdfs:range xsd:string ;
+           rdfs:comment "The name of a genre used to classify a title, such as drama, comedy, or action."@en ;
+           rdfs:label "genreName"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#isAdult
+:isAdult rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf owl:topDataProperty ;
+         rdfs:domain :Title ;
+         rdfs:range xsd:boolean ;
+         rdfs:comment "Indicates whether a title is intended for adult audiences."@en ;
+         rdfs:label "isAdult"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#isOriginalTitle
+:isOriginalTitle rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf owl:topDataProperty ;
+                 rdfs:domain :AlternativeTitle ;
+                 rdfs:range xsd:boolean ;
+                 rdfs:comment "Indicates whether an alternative title is the original title of the associated title.e"@en ;
+                 rdfs:label "isOriginalTitle"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#job
+:job rdf:type owl:DatatypeProperty ;
+     rdfs:subPropertyOf owl:topDataProperty ;
+     rdfs:domain :Participation ;
+     rdfs:range xsd:string ;
+     rdfs:comment "A textual description of the specific job or function performed by a talent in a participation."@en ;
+     rdfs:label "jobDescription"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#originalTitle
+:originalTitle rdf:type owl:DatatypeProperty ;
+               rdfs:subPropertyOf owl:topDataProperty ;
+               rdfs:domain :Title ;
+               rdfs:range xsd:string ;
+               rdfs:comment "The original title text assigned to a title."@en ;
+               rdfs:label "originalTitle"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#participationOrd
+:participationOrd rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdfs:domain :Participation ;
+                  rdfs:range xsd:integer ;
+                  rdfs:comment "The ordering or ranking of a participation within a title, for example to indicate main or secondary contributors."@en ;
+                  rdfs:label "participationOrder"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#primaryTitle
+:primaryTitle rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf owl:topDataProperty ;
+              rdfs:domain :Title ;
+              rdfs:range xsd:string ;
+              rdfs:comment "The primary title text used as the main name of a title."@en ;
+              rdfs:label "primaryTitle"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#regionName
+:regionName rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf owl:topDataProperty ;
+            rdfs:domain :Region ;
+            rdfs:range xsd:string ;
+            rdfs:comment "The name of a region associated with an alternative title or distribution context."@en ;
+            rdfs:label "regionName"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#roleName
+:roleName rdf:type owl:DatatypeProperty ;
+          rdfs:subPropertyOf owl:topDataProperty ;
+          rdfs:domain :Role ;
+          rdfs:range xsd:string ;
+          rdfs:comment "The name of a role that a talent may have in relation to a title, such as actor, director, or writer."@en ;
+          rdfs:label "roleName"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#runtimeMinutes
+:runtimeMinutes rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf owl:topDataProperty ;
+                rdfs:domain :Title ;
+                rdfs:range xsd:string ;
+                rdfs:comment "The duration of a title expressed in minutes."@en ;
+                rdfs:label "runtimeInMinutes"@en ;
+                rdfs:seeAlso "runtimeMinutes"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#startYear
+:startYear rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty ;
+           rdfs:domain :Title ;
+           rdfs:range xsd:integer ;
+           rdfs:comment "The year in which a title was first released or started airing."@en ;
+           rdfs:label "startYear"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#talentName
+:talentName rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf owl:topDataProperty ;
+            rdfs:domain :Talent ;
+            rdfs:range xsd:string ;
+            rdfs:comment "The name of a talent involved in a title, such as an actor, director, or writer."@en ;
+            rdfs:label "talentName"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#title_type_name
+:title_type_name rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf owl:topDataProperty ;
+                 rdfs:domain :TitleType ;
+                 rdfs:range xsd:string ;
+                 rdfs:comment "The name of a tite type"@en ;
+                 rdfs:label "titleTypeName"@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#AlternativeTitle
+:AlternativeTitle rdf:type owl:Class ;
+                  rdfs:comment "An alternative title used to refer to a title in different languages, regions, or contexts, possibly including ordering and additional attributes."@en ;
+                  rdfs:label "AlternativeTitle"@en ;
+                  rdfs:seeAlso "Alternative_title, Title_aka, TitleAka"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Category
+:Category rdf:type owl:Class ;
+          rdfs:comment "A classification used to categorize the participation of a talent in a title, often describing the nature of their contribution."@en ;
+          rdfs:label "Category"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#ContentType
+:ContentType rdf:type owl:Class ;
+             rdfs:comment "A classification of a title based on its format or type, such as movie, TV series, or short film."@en ;
+             rdfs:label "ContentType"@en ;
+             rdfs:seeAlso "Content_type"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Genre
+:Genre rdf:type owl:Class ;
+       rdfs:comment "A category that describes the thematic or stylistic classification of a title, such as drama, comedy, or action."@en ;
+       rdfs:label "Genre"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Participation
+:Participation rdf:type owl:Class ;
+               rdfs:comment "A participation event linking a talent to a title with a specific role, possibly including additional attributes such as job description and participation order."@en ;
+               rdfs:label "Participation"@en ;
+               rdfs:seeAlso "Title_principal"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Region
+:Region rdf:type owl:Class ;
+        rdfs:comment "A geographical area associated with a title or its alternative versions, such as a country or distribution region."@en ;
+        rdfs:label "Region"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Role
+:Role rdf:type owl:Class ;
+      rdfs:comment "A function or role played by a talent in a title, such as actor, director, or producer."@en ;
+      rdfs:label "Role"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Talent
+:Talent rdf:type owl:Class ;
+        rdfs:comment "A person involved in the creation or participation in a title, such as an actor, director, or writer, described by attributes like name and life dates."@en ;
+        rdfs:label "Talent"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#Title
+:Title rdf:type owl:Class ;
+       rdfs:comment "A film, series, or other audiovisual content, characterized by attributes such as title, release year, runtime, and adult content flag."@en ;
+       rdfs:label "Title"@en .
+
+
+###  https://khalilankri.github.io/audiovisual-ontology/1.0#TitleType
+:TitleType rdf:type owl:Class ;
+           rdfs:comment "A classification describing the type of a title or alternative title, such as original, working title, or international title."@en ;
+           rdfs:label "TitleType"@en ;
+           rdfs:seeAlso "Title_type"@en .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+<http://purl.org/dc/elements/1.1/creator> rdfs:comment "Authors metadata"@en .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :AlternativeTitle
+                :Category
+                :ContentType
+                :Genre
+                :Participation
+                :Region
+                :Role
+                :Talent
+                :Title
+                :TitleType
+              )
+] .
+
+
+###  Generated by the OWL API (version 5.1.18) https://github.com/owlcs/owlapi/

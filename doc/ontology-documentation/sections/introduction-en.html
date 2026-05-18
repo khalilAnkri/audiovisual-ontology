@@ -1,0 +1,12 @@
+<h2 id="intro" class="list">Introduction <span class="backlink"> back to <a href="#toc">ToC</a></span></h2>
+<span class="markdown">
+This ontology grew out of a Knowledge Representation and Reasoning project at the Université de Liège in which an IMDb-derived relational schema was lifted into an RDF knowledge graph. To avoid tying the conceptualisation to a single data source, the domain was generalised from "IMDb titles" to "audiovisual works" so the ontology can be reused by any actor of the audiovisual ecosystem who needs to publish or consume comparable data.
+
+The ontology is positioned as a lightweight, queryable schema rather than a heavyweight reasoning artefact. It targets the **OWL&nbsp;2&nbsp;QL** profile, which keeps SPARQL queries SQL-rewritable and supports domain/range entailment without committing to rule-based derivation. This choice is motivated by two concerns: (i) the application layer needs fast, predictable querying over a large corpus of titles and participations rather than complex inference, and (ii) the profile remains well-suited to extension by third parties without forcing them into a richer logic.
+
+Two recurring modelling decisions are worth flagging up front:
+
+- **Reification of the talent&ndash;title relationship via `Participation`.** A binary `talent &mdash; title` link would erase the role and category context (who plays which character, in which professional capacity). The `Participation` class makes those facts first-class so they can be queried, filtered, and counted.
+- **Disjointness on domain classes.** All ten domain classes (`Title`, `Talent`, `Genre`, `Role`, `Category`, `ContentType`, `Region`, `AlternativeTitle`, `TitleType`, `Participation`) are declared pairwise disjoint, which keeps SHACL-validated data unambiguous and surfaces mapping errors at validation time.
+
+The ontology is published as a shared vocabulary; the instance data that populates it is generated separately by an R2RML mapping from the source database and validated against a SHACL shapes file. Both artefacts are distributed alongside the ontology in the project repository.</span>
